@@ -45,7 +45,7 @@ owns the tests that span features.
 ## Work per member
 
 **Shane** — Backend and DevOps
-- Backend foundations: resource-server starter, `Clock` bean, error handler, `@IntegrationTest` test setup
+- Backend foundations: resource-server starter, `Clock` bean, error handler, `@IntegrationTest` test setup, Swagger/OpenAPI
 - JWT login: `/api/auth/login`, `/me`, `/logout`, token-version check. Test: `AuthControllerTest`
 - Compose `web` service and `JWT_SECRET`; CI end-to-end job
 
@@ -182,6 +182,7 @@ Controllers return DTO records, never entities.
 - Add `spring-boot-starter-security-oauth2-resource-server` and its `-test` starter. These are the Boot 4.1 names.
 - `Clock` bean (`Clock.systemUTC()`). Code reading the time injects it.
 - One error handler producing the error shape. **No catch-all `Exception` handler**: it would hide Spring Security's 403.
+- API docs: `springdoc-openapi-starter-webmvc-ui` 3.1.1, with a Bearer JWT scheme so Swagger UI has an Authorize button. Swagger UI at `/swagger-ui.html`, spec at `/v3/api-docs`. **Every controller gets `@Tag` and every endpoint an `@Operation(summary = "…")`.**
 - `@IntegrationTest` = `@SpringBootTest` + `@AutoConfigureMockMvc` + `@Import(TestcontainersConfiguration.class)` + `@Transactional`.
 - Boot 4 test packages: `org.springframework.boot.webmvc.test.autoconfigure.*`, `org.springframework.boot.data.jpa.test.autoconfigure.*`.
 
@@ -190,7 +191,7 @@ Controllers return DTO records, never entities.
 - `NimbusJwtEncoder.withSecretKey(key).algorithm(MacAlgorithm.HS256).build()`; `NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build()`.
 - Claims: `sub` = user id, `tv` = token version, `exp` = 1 hour. `tv` decodes as `Long`; compare with `intValue()`.
 - On every request, a `Converter<Jwt, AbstractAuthenticationToken>` loads the user and checks `tv` and `enabled`; on mismatch it throws `InvalidBearerTokenException` (→ 401). The role comes from the database.
-- Security config: CSRF off, `STATELESS`, `oauth2ResourceServer(jwt)`, URL rules from the permissions table, `/error` and `/actuator/health/**` open.
+- Security config: CSRF off, `STATELESS`, `oauth2ResourceServer(jwt)`, URL rules from the permissions table, `/error`, `/actuator/health/**`, `/swagger-ui/**`, and `/v3/api-docs/**` open.
 - Passwords: `DaoAuthenticationProvider` + `PasswordEncoderFactories.createDelegatingPasswordEncoder()`.
 
 **Audit:** `AuditService.record(...)` uses `Propagation.MANDATORY`, so it always commits or rolls back with the change it records.
