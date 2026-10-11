@@ -129,7 +129,7 @@ RESOLVED requires a recovery note. CLOSED requires the basic postmortem to be sa
 
 For this single-organization prototype, authenticated users can read shared incident records. Viewers cannot change them. Engineers and Admins can respond to incidents and edit postmortems. Only Admins change users, service settings, on-call slots, and escalation policies. Personal notifications are visible only to their recipient.
 
-Use Spring Security session authentication, password hashing, and CSRF protection for browser requests. The alert endpoint uses separate source authentication. Keep secrets out of Git and logs.
+Use stateless JWT bearer tokens with a per-user token version for revocation (D21), and hashed passwords. CSRF protection is not needed because the browser never sends a bearer token on its own. The alert endpoint uses separate source authentication. Keep secrets out of Git and logs.
 
 Status, ownership, severity, and comment events are append-only through the application. Correct an entry by adding an attributed amendment. Configuration changes receive audit entries. This is an application rule, not a claim that a database administrator cannot alter the database.
 
