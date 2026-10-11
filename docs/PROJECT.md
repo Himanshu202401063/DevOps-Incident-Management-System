@@ -45,7 +45,7 @@ Defer automatic on-call rotations, cross-service alert correlation, SLA pauses a
 ## What became simpler
 
 - Four maintained documents and one CSV instead of 24 separate files.
-- One application and one database; no message broker or distributed deployment.
+- One application and one database. RabbitMQ is added only through an outbox, when the first async consumer lands (D24).
 - A few straightforward packages instead of a separate interface layer for every module.
 - Assignment to an individual responder; team ownership stays in the service catalog.
 - Explicit matching of alerts within one service; no inference that similar alerts have the same cause.
@@ -64,6 +64,7 @@ These are proposed scope changes, not claims that the existing requirements or s
 | Frontend | React, TypeScript, Vite, TanStack Query, Zod, Tailwind and shadcn/ui |
 | Tests | JUnit, Mockito where useful, Testcontainers for database behavior, Vitest, Cypress |
 | Quality and delivery | PIT for selected business rules; GitHub Actions; Docker Compose |
+| Hosting | Vercel (frontend), Render (backend), Supabase (PostgreSQL), UptimeRobot (D25) |
 | Optional AI | Python, FastAPI, Ollama; LangGraph only when the selected workflow needs it |
 
 Use Spring Boot 4.1 with Java 21 for the new project. Pin a stable 4.1 patch in the build file when scaffolding and use compatible dependencies. Follow Boot 4 documentation when older tutorials differ. Recharts is only needed if we add charts.
@@ -103,5 +104,11 @@ Selected means a design choice adopted in this pack, not completed stakeholder v
 | D14 | How does escalation catch up after restart? | Open: process one overdue step once, then give the next contact a full wait | Team 1 | Review 2026-09-24 |
 | D17 | What is needed before closure? | Open: recovery note plus a saved, reviewed basic postmortem for every incident; Engineer/Admin may review; action items can remain open | Team 1 + Team 3 | Review 2026-09-25 |
 | D19 | Which older requirement details remain in scope? | Open: reconcile narrowed dashboard filters/averages, team assignment, catalog criticality, and any other differences flagged in the CSV | All three teams | Review 2026-09-25 |
+| D20 | Application roles | Selected: `ADMIN`, `ENGINEER`, `VIEWER` | Team 1 | Recorded 2026-10-11 |
+| D21 | How do users authenticate? | Selected: stateless JWT (HS256) sent as a Bearer header and kept in `sessionStorage`. A per-user `token_version` revokes old tokens on logout or role change. CSRF is disabled because the browser never sends the token on its own | Shane | Recorded 2026-10-11 |
+| D22 | What does creating an incident record in Sprint 1? | Selected: the incident, its copied SLA targets, a timeline entry, and an audit entry, in one transaction (E4a, epics Decision 3) | Utsav B | Recorded 2026-10-11 |
+| D23 | Service criticality and default targets | Open: criticality `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`; default response targets SEV1 15, SEV2 60, SEV3 240, SEV4 1440 minutes (C7); resolution targets entered by the admin | Himanshu | Review 2026-10-14 |
+| D24 | Messaging and cache | Selected: RabbitMQ through a transactional outbox, added when the first async consumer lands; Redis optional, for live updates (HLD v2) | Shane | Recorded 2026-10-11 |
+| D25 | Where is the app hosted? | Selected: frontend on Vercel, backend on Render (Docker), PostgreSQL on Supabase, UptimeRobot pinging `/actuator/health` to keep the backend awake | Shane | Recorded 2026-10-11 |
 
 Before implementing an affected rule, its owner should record the team's decision, actual date, and Slack or issue reference. Optional features need not block EPIC 1. If a suggested review date does not fit the sprint, change it explicitly rather than presenting the review as completed.

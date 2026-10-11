@@ -37,7 +37,7 @@ Only the parts needed for this sprint. The rest of each story's acceptance crite
 
 **US-01: Users and roles**
 - Login and logout
-- Three roles: Admin, Responder, Viewer
+- Three roles: Admin, Engineer, Viewer
 - Admin can create users and assign a role
 - Passwords stored as salted hashes
 - Server rejects actions a role is not allowed to perform
@@ -71,7 +71,7 @@ Only the parts needed for this sprint. The rest of each story's acceptance crite
 
 ### Out of scope for Sprint 1
 
-Alerts, on-call schedules, escalation, notifications, timeline, SLA clocks, RabbitMQ, Redis, AI. These come in later sprints.
+Alerts, on-call schedules, escalation, notifications, RabbitMQ, Redis, AI. These come in later sprints. Creating an incident does record its timeline entry, audit entry, and copied SLA targets (D22).
 
 ### Definition of Done
 
@@ -84,11 +84,11 @@ A story is done only when:
 
 ### Sprint 1 demo
 
-1. Admin logs in and creates a Responder user
+1. Admin logs in and creates an Engineer user
 2. Admin registers a service, for example "Payments," with targets per severity
-3. Responder logs in and creates an incident for Payments as SEV2
+3. Engineer logs in and creates an incident for Payments as SEV2
 4. The incident appears in the list with a unique ID and status OPEN
-5. Responder tries to submit an incident with no title, and the form shows the error
+5. Engineer tries to submit an incident with no title, and the form shows the error
 6. Viewer logs in and cannot create an incident
 
 ### Risks
