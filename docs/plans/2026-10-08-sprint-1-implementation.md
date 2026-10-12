@@ -162,6 +162,7 @@ Flyway migrations in `backend/src/main/resources/db/migration`. New migrations a
 
 - `audit_entry` and `timeline_entry` get a `BEFORE UPDATE OR DELETE` trigger that raises an error, so they are append-only.
 - The table is `app_user` because `user` is reserved in PostgreSQL.
+- Tables live in the `incident` schema (D26). Use unqualified names in migrations.
 - Enums are `varchar` columns with a `CHECK` constraint. Timestamps are `timestamptz`.
 
 **Dev seed** `db/devdata/R__dev_seed.sql` (idempotent, `ON CONFLICT DO NOTHING`): users `admin`,
@@ -231,6 +232,8 @@ Files in `frontend/src/`: `api/` (client, schemas), `auth/` (token store, contex
 ---
 
 ## DevOps
+
+Hosting is set up (D25): Vercel, Render, Supabase, UptimeRobot, and `vercel.json`. Remaining:
 
 - `vite.config.ts`: add a `preview` proxy for `/api`, same as `server`.
 - `compose.yaml`: `JWT_SECRET` on `app`; a `web` service from `./frontend` on port 8081 (profile `app`).

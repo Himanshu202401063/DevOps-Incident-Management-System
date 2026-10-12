@@ -7,12 +7,15 @@ apply to changes here.
 ## Run
 
 ```bash
-npm install
+npm ci          # installs exactly what package-lock.json says
 npm run dev     # http://localhost:5173
 ```
 
 `/api` is proxied to `http://localhost:8080`, so start the backend separately. There is no CORS
 configuration to maintain.
+
+In production, Vercel serves the app and `vercel.json` forwards `/api` to the Render backend, so the
+code calls `/api` the same way everywhere. Every pull request gets a Vercel preview link.
 
 ## Scripts
 
