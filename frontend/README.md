@@ -17,6 +17,9 @@ configuration to maintain.
 In production, Vercel serves the app and `vercel.json` forwards `/api` to the Render backend, so the
 code calls `/api` the same way everywhere. Every pull request gets a Vercel preview link.
 
+Shared UI components (buttons, form fields, tables, badges) live in `src/components/ui/`. Pages use
+them instead of styling their own.
+
 ## Scripts
 
 | Command | Does |

@@ -20,6 +20,7 @@ Foundations and deployment are in place. Business features and login are next.
 | Deployment: Vercel, Render, Supabase, UptimeRobot | Done |
 | V1 migrations and seed data | Not started |
 | Login and roles (FR-01) | Not started |
+| AI service skeleton | Not started |
 
 ## Live
 
@@ -91,7 +92,20 @@ cd frontend && npm run cypress:run    # end-to-end, needs both servers running
 | `compose.yaml` | Local database and packaged application |
 | `.env.example` | Example settings, no real credentials |
 
-`ai-service/` is added only if the optional AI extension is started.
+`ai-service/` (Python, FastAPI, Ollama) comes from the AI/ML track in Sprint 1. It runs locally
+only; see the [AI/ML roadmap](docs/plans/ai-ml-roadmap.md).
+
+## Team and plans
+
+| Role | Members |
+| --- | --- |
+| Backend | Shane, Shlok, Utsav B |
+| Frontend | Bhakti, Manan, Dhruva, Het |
+| AI/ML | Himanshu, Shlok, Bhakti |
+| Testing | Utsav D, Manush, Dhruva, Het |
+| DevOps and Reviewer | Shane |
+
+Each member's work is in the [Sprint 1 implementation plan](docs/plans/2026-10-08-sprint-1-implementation.md).
 
 ## Deployment
 
@@ -109,5 +123,5 @@ Secrets live only in Render's environment variables, never in the repository.
 ## Working agreement
 
 Branch from `main`, keep commits attributable to their author, open a focused pull request,
-and have another member review it. CI must pass before merge. `AGENTS.md` holds the
+and Shane reviews and merges it. CI must pass before merge. `AGENTS.md` holds the
 conventions that apply to both people and coding agents working in this repository.
