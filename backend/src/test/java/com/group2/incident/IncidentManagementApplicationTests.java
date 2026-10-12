@@ -9,6 +9,7 @@ import java.time.Clock;
 import java.time.ZoneOffset;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -20,6 +21,15 @@ class IncidentManagementApplicationTests {
 
 	@Autowired
 	private MockMvc mvc;
+
+	@Autowired
+	private JdbcTemplate jdbc;
+
+	@Test
+	void migrationsRunInTheIncidentSchema() {
+		Boolean exists = jdbc.queryForObject("select to_regclass('incident.flyway_schema_history') is not null", Boolean.class);
+		assertThat(exists).isTrue();
+	}
 
 	@Test
 	void clockIsUtc() {
