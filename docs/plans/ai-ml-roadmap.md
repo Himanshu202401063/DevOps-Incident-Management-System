@@ -1,6 +1,6 @@
 # AI/ML Roadmap
 
-**Team:** Himanshu (lead, `ai-service`), Shlok (backend integration), Manan (dataset and AI screens).
+**Team:** Himanshu (lead, `ai-service`), Shlok (backend integration), Bhakti (dataset and AI screens).
 
 ## Rules from our requirements
 
@@ -26,7 +26,7 @@ and drafts of customer updates (FR-21).
 
 ## By sprint
 
-| Sprint | Himanshu (`ai-service`) | Shlok (backend) | Manan |
+| Sprint | Himanshu (`ai-service`) | Shlok (backend) | Bhakti |
 | --- | --- | --- | --- |
 | 1 | Skeleton: FastAPI, `/health`, stub `/suggest`, pytest, CI job; Ollama locally | — | — |
 | 2 | Similar-incident finder (TF-IDF); `/suggest` with Ollama, JSON-schema checked, timeout | — | 30–50 sample incidents with their fixes |

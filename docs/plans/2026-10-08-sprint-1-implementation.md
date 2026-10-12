@@ -28,7 +28,7 @@ Record these in the `PROJECT.md` decision log before coding.
 | --- | --- |
 | Backend | Shane, Shlok, Utsav B |
 | Frontend | Bhakti, Manan, Dhruva |
-| AI/ML | Himanshu, Shlok, Manan |
+| AI/ML | Himanshu, Shlok, Bhakti |
 | Testing | Utsav D, Het, Manush, Dhruva |
 | DevOps and Reviewer | Shane |
 
@@ -65,12 +65,12 @@ owns the tests that span features.
 - Incidents: create, list, detail, with timeline and audit in one transaction
 - Tests: `IncidentTest` (unit), `IncidentControllerTest`, `IncidentCreationRollbackTest`
 
-**Bhakti** — Frontend
+**Bhakti** — Frontend (AI/ML work starts in Sprint 2)
 - API client and Zod schemas (merge first)
 - Login page, app layout, routing, role-based navigation
 - Users page
 
-**Manan** — Frontend (AI/ML work starts in Sprint 2)
+**Manan** — Frontend
 - Services list and the create/edit form with the SLA target grid
 
 **Dhruva** — Frontend and Testing
