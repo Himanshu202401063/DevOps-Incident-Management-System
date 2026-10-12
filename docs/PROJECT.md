@@ -73,20 +73,20 @@ Version check, 22 September 2026: the [official project page](https://spring.io/
 
 ## Team
 
-| Student ID | Name | Sub-team |
+| Student ID | Name | Roles |
 | --- | --- | --- |
-| 202401041 | Christian Shane Prashant | Team 1 |
-| 202401051 | Diwan Shlok Dineshkumar | Team 1 |
-| 202401063 | Gohel Himanshu Shaileshbhai | Team 1 |
-| 202401029 | Bhatiya Dhruva Jiteshbhai | Team 2 |
-| 202401026 | Bhakti Sudhir Patolia | Team 2 |
-| 202401044 | Darji Utsav Girish | Team 2 |
-| 202401021 | Bechara Utsav Bhaveshbhai | Team 3 |
-| 202401014 | Manan Amreliya | Team 3 |
-| 202401070 | Jada Manush Alpeshbhai | Team 3 |
-| 202401033 | Bhungaliya Het Bhaveshbhai | Team 3 |
+| 202401041 | Christian Shane Prashant | Backend, DevOps, Reviewer |
+| 202401051 | Diwan Shlok Dineshkumar | Backend, AI/ML |
+| 202401063 | Gohel Himanshu Shaileshbhai | AI/ML |
+| 202401029 | Bhatiya Dhruva Jiteshbhai | Frontend, Testing |
+| 202401026 | Bhakti Sudhir Patolia | Frontend, AI/ML |
+| 202401044 | Darji Utsav Girish | Testing |
+| 202401021 | Bechara Utsav Bhaveshbhai | Backend |
+| 202401014 | Manan Amreliya | Frontend |
+| 202401070 | Jada Manush Alpeshbhai | Testing |
+| 202401033 | Bhungaliya Het Bhaveshbhai | Frontend, Testing |
 
-Every member should implement and test a meaningful part, make their own commits, and review another member's work. Use Slack for team communication and GitHub for issues, code, and reviews.
+Every member should implement and test a meaningful part and make their own commits. Shane reviews and merges pull requests. Use Slack for team communication and GitHub for issues, code, and reviews.
 
 ## Short decision log
 

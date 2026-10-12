@@ -17,6 +17,7 @@ An incident management web application built for IT314 by Group 2. The specifica
 | `docs/sprint-plan.md` | Sprint roadmap and the current sprint's scope |
 | `docs/TESTING_AND_WORKFLOW.md` | The essential-tests table, traceability rules, and the workflow |
 | `docs/TRACEABILITY.csv` | Every FR sub-ID mapped to its planned check and current status |
+| `docs/plans/` | Sprint implementation plans (who does what) and the AI/ML roadmap |
 | `docs/requirements/Group-2.pdf` | The full submitted requirements document |
 
 ## Stack
@@ -66,6 +67,7 @@ These come from the design documents. Breaking one silently breaks a planned tes
 - **Document every endpoint.** `@Tag` on the controller and `@Operation(summary = "…")` on each method, so Swagger UI stays useful.
 - **Do not return JPA entities from controllers.** Use request and response DTOs.
 - **AI never changes state.** It suggests; deterministic code handles status, SLA, and escalation.
+- **Only the backend calls `ai-service`,** which never writes to the database. The app must keep working when it is down or slow.
 
 ## Code layout
 
@@ -126,7 +128,7 @@ carries placeholders only. Passwords, API tokens, and webhook secrets must not r
 
 ## Git
 
-Short-lived branches off `main`, one focused pull request per story, review by another member,
+Short-lived branches off `main`, one focused pull request per story, reviewed and merged by Shane,
 merge when CI passes. Before your first commit, check that `git config user.email` is an address
 verified on your GitHub account, or your commits won't be credited to you. Keep commits attributable to their actual author. Do not add
 `Co-Authored-By` lines for AI tools.

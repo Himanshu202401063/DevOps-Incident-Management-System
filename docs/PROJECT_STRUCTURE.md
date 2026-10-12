@@ -26,7 +26,7 @@ The backend is the authority for status changes, timing, and permissions. Browse
 | `.github/workflows/` | Build and test workflow |
 | `compose.yaml` | Local database and application setup |
 | `.env.example` | Example settings without real credentials |
-| `ai-service/` | Add only when starting the AI extension |
+| `ai-service/` | Python AI service (FastAPI, Ollama), from Sprint 1; see `docs/plans/ai-ml-roadmap.md` |
 
 Inside the backend, use packages such as `auth`, `catalog`, `incident`, `alert`, `notification`, and `postmortem`. Keep SLA and escalation classes with the incident feature initially. Split a package only when its size makes that useful.
 
@@ -135,6 +135,8 @@ Use stateless JWT bearer tokens with a per-user token version for revocation (D2
 Status, ownership, severity, and comment events are append-only through the application. Correct an entry by adding an attributed amendment. Configuration changes receive audit entries. This is an application rule, not a claim that a database administrator cannot alter the database.
 
 ## 10. Optional AI extension
+
+The planned features and their order are in [docs/plans/ai-ml-roadmap.md](plans/ai-ml-roadmap.md).
 
 Start with one useful feature: retrieve previous incidents and ask a local model to suggest investigation steps from their fixes. Show the referenced incident IDs and label the result as a suggestion. A similar past incident does not prove the same cause.
 
