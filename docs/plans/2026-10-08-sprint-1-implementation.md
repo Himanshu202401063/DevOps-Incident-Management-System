@@ -26,10 +26,11 @@ Record these in the `PROJECT.md` decision log before coding.
 
 | Track | Members |
 | --- | --- |
-| Backend | Shane, Shlok, Himanshu, Utsav B |
+| Backend | Shane, Shlok, Utsav B |
 | Frontend | Bhakti, Manan, Dhruva |
-| Testing | Utsav D, Het, Manush |
-| DevOps | Shane |
+| AI/ML | Himanshu, Shlok, Manan |
+| Testing | Utsav D, Het, Manush, Dhruva |
+| DevOps and Reviewer | Shane |
 
 Whoever builds a feature writes its unit and integration tests in the same PR. The Testing track
 owns the tests that span features.
@@ -38,13 +39,13 @@ owns the tests that span features.
 
 1. **Shlok** merges the database migrations first. Everyone builds on these tables.
 2. **Shane** merges login next. Integration tests that need a token wait for it.
-3. **Himanshu** merges the `Severity` enum early (Utsav B needs it). **Bhakti** merges the API client early (Manan and Dhruva need it).
+3. **Bhakti** merges the API client early (Manan and Dhruva need it).
 4. Everything else runs in parallel against the [API contract](#api-contract).
 5. **Shane** adds Compose and the CI end-to-end job once the features are in.
 
 ## Work per member
 
-**Shane** — Backend and DevOps
+**Shane** — Backend, DevOps, and Reviewer
 - Backend foundations: resource-server starter, `Clock` bean, error handler, `@IntegrationTest` test setup, Swagger/OpenAPI
 - JWT login: `/api/auth/login`, `/me`, `/logout`, token-version check. Test: `AuthControllerTest`
 - Compose `web` service and `JWT_SECRET`; CI end-to-end job
@@ -54,11 +55,13 @@ owns the tests that span features.
 - Audit writer (`AuditService`)
 - User administration: create user, list users, change role. Test: `UserAdminControllerTest`
 
-**Himanshu** — Backend
-- `Severity` enum (merge first)
-- Service catalog: create, update, list, with SLA targets and audit entries. Test: `ServiceControllerTest`
+**Himanshu** — AI/ML
+- `ai-service/` skeleton: Python + FastAPI, `GET /health`, and `POST /suggest` returning a fixed example in the [AI contract](#ai-service) shape
+- pytest, and a CI job that runs it
+- Ollama installed locally: pick a small model and note how much memory it needs
 
 **Utsav B** — Backend
+- `Severity` enum, then the service catalog: create, update, list, with SLA targets and audit entries. Test: `ServiceControllerTest`
 - Incidents: create, list, detail, with timeline and audit in one transaction
 - Tests: `IncidentTest` (unit), `IncidentControllerTest`, `IncidentCreationRollbackTest`
 
@@ -67,11 +70,12 @@ owns the tests that span features.
 - Login page, app layout, routing, role-based navigation
 - Users page
 
-**Manan** — Frontend
+**Manan** — Frontend (AI/ML work starts in Sprint 2)
 - Services list and the create/edit form with the SLA target grid
 
-**Dhruva** — Frontend
+**Dhruva** — Frontend and Testing
 - Incident list and the create-incident form
+- Testing: the Cypress demo with Het (the frontend side: pages and input ids)
 
 **Utsav D** — Testing
 - `SecurityMatrixTest`: every endpoint × Admin, Engineer, Viewer, and no token
@@ -213,6 +217,25 @@ Files in `frontend/src/`: `api/` (client, schemas), `auth/` (token store, contex
 - Navigation hides what the role can't use: Viewer sees no "New incident"; only Admin sees Services edit and Users.
 - Every form input has an `id` equal to its field name (Cypress uses them).
 - Watch out for: `import type` for type-only imports; no TypeScript `enum`; Zod 4 messages use `{ error: '…' }`.
+
+---
+
+## AI service
+
+`ai-service/` is a separate Python app. Only the backend calls it, and it never writes to the
+database. It runs locally; it is not deployed on Render's free tier. Contract:
+
+```jsonc
+// POST /suggest
+{ "incident": { "title": "…", "description": "…", "service": "Payments", "severity": "SEV2" },
+  "pastIncidents": [ { "id": 12, "title": "…", "description": "…", "fix": "…" } ] }
+// → 200
+{ "aiGenerated": true,
+  "suggestions": [ { "step": "Check the payment gateway timeout", "basedOn": [12] } ] }
+```
+
+Every suggestion names the past incidents it came from (FR-18.2). If the model fails or times
+out, the app carries on without suggestions (NFR-12).
 
 ---
 
