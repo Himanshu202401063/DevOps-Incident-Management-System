@@ -16,7 +16,7 @@ Scaffold only. There is no business logic, no schema, and no login yet. What exi
 | Backend: Spring Boot 4.1.1 skeleton, Maven wrapper, Flyway and Testcontainers wired | Done |
 | Frontend: Vite + React + TypeScript, Tailwind, TanStack Query, Vitest, Cypress | Done |
 | PostgreSQL 16 in Docker Compose | Done |
-| CI (build and test both applications) and CD (build images) | Done |
+| CI (build and test both applications); deploys through Vercel and Render | Done |
 | V1 migrations and seed data | Not started |
 | Login and roles (FR-01) | Not started |
 
@@ -76,7 +76,7 @@ cd frontend && npm run cypress:run    # end-to-end, needs both servers running
 | `backend/src/main/resources/db/migration/` | Flyway migrations |
 | `frontend/` | React screens, components, and frontend tests |
 | `docs/` | Design documents, the requirements PDF, diagrams, and sprint notes |
-| `.github/workflows/` | CI and CD |
+| `.github/workflows/` | CI |
 | `compose.yaml` | Local database and packaged application |
 | `.env.example` | Example settings, no real credentials |
 
