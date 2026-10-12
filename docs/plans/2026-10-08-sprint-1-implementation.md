@@ -27,9 +27,9 @@ Record these in the `PROJECT.md` decision log before coding.
 | Track | Members |
 | --- | --- |
 | Backend | Shane, Shlok, Utsav B |
-| Frontend | Bhakti, Manan, Dhruva |
+| Frontend | Bhakti, Manan, Dhruva, Het |
 | AI/ML | Himanshu, Shlok, Bhakti |
-| Testing | Utsav D, Het, Manush, Dhruva |
+| Testing | Utsav D, Manush, Dhruva, Het |
 | DevOps and Reviewer | Shane |
 
 Whoever builds a feature writes its unit and integration tests in the same PR. The Testing track
@@ -39,7 +39,7 @@ owns the tests that span features.
 
 1. **Shlok** merges the database migrations first. Everyone builds on these tables.
 2. **Shane** merges login next. Integration tests that need a token wait for it.
-3. **Bhakti** merges the API client early (Manan and Dhruva need it).
+3. **Bhakti** merges the API client early, and **Het** the shared UI components. All pages build on both.
 4. Everything else runs in parallel against the [API contract](#api-contract).
 5. **Shane** adds Compose and the CI end-to-end job once the features are in.
 
@@ -80,8 +80,9 @@ owns the tests that span features.
 **Utsav D** — Testing
 - `SecurityMatrixTest`: every endpoint × Admin, Engineer, Viewer, and no token
 
-**Het** — Testing
-- Cypress test that runs the Sprint 1 demo end to end
+**Het** — Frontend and Testing
+- Shared UI components in `components/ui/`: button, form field with its error message, table, severity and status badges, loading and error states (merge early)
+- Testing: Cypress test that runs the Sprint 1 demo end to end
 
 **Manush** — Testing
 - `DatabaseSchemaTest` (in Shlok's migration PR)
@@ -216,6 +217,7 @@ Files in `frontend/src/`: `api/` (client, schemas), `auth/` (token store, contex
 - The API client adds the Bearer token, validates responses with Zod, and on 401 clears the token and returns to `/login`.
 - Navigation hides what the role can't use: Viewer sees no "New incident"; only Admin sees Services edit and Users.
 - Every form input has an `id` equal to its field name (Cypress uses them).
+- Pages use the shared components in `components/ui/` instead of styling their own, so the app looks like one product.
 - Watch out for: `import type` for type-only imports; no TypeScript `enum`; Zod 4 messages use `{ error: '…' }`.
 
 ---
