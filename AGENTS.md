@@ -61,6 +61,9 @@ These come from the design documents. Breaking one silently breaks a planned tes
   `OPEN → ACKNOWLEDGED → INVESTIGATING → IDENTIFIED → MONITORING → RESOLVED → CLOSED`, plus
   `INVESTIGATING → MONITORING` and `MONITORING → INVESTIGATING`. Reject anything else.
 - **Inject `Clock`** into any code that reads the time, so tests can control it.
+- **Our tables live in the `incident` schema.** Write migrations with unqualified names (`CREATE TABLE app_user`, not `public.app_user`); they land in `incident` automatically.
+- **One error shape.** Throw `NotFoundException`, `ConflictException`, or `FieldValidationException`; `ApiExceptionHandler` turns them into `ApiError`. Never add a catch-all `Exception` handler: it hides Spring Security's 403.
+- **Document every endpoint.** `@Tag` on the controller and `@Operation(summary = "…")` on each method, so Swagger UI stays useful.
 - **Do not return JPA entities from controllers.** Use request and response DTOs.
 - **AI never changes state.** It suggests; deterministic code handles status, SLA, and escalation.
 
@@ -89,6 +92,10 @@ levels:
 | Meaningful form behaviour | Vitest |
 | Transition and SLA rules | PIT, on demand |
 
+Integration tests use the `@IntegrationTest` annotation (full app, Testcontainers PostgreSQL,
+rolled back after each test). Don't add `src/test/resources/application.properties`: it replaces
+the main config during tests instead of adding to it.
+
 Before claiming something works, run it and read the output. `docs/TRACEABILITY.csv` moves to
 Passed or Failed only after the check has actually run, with the date and commit recorded.
 
@@ -104,6 +111,13 @@ Passed or Failed only after the check has actually run, with the date and commit
 - **The database password is fixed on first start.** PostgreSQL only applies `POSTGRES_PASSWORD`
   when it initialises an empty data directory. After changing it, run `docker compose down -v` to
   drop the volume, which also deletes local data.
+- **Install frontend packages with `npm ci`**, which follows the lockfile exactly. Use `npm install` only when changing dependencies. If `package-lock.json` conflicts in a merge, take either side and run `npm install` to regenerate it; never edit it by hand.
+
+## Deployment
+
+`main` deploys itself once CI passes: the frontend to Vercel, the backend to Render (database on
+Supabase). A change that needs a new setting means a new environment variable on Render, never a
+value committed to the repository.
 
 ## Secrets
 
@@ -113,7 +127,8 @@ carries placeholders only. Passwords, API tokens, and webhook secrets must not r
 ## Git
 
 Short-lived branches off `main`, one focused pull request per story, review by another member,
-merge when CI passes. Keep commits attributable to their actual author. Do not add
+merge when CI passes. Before your first commit, check that `git config user.email` is an address
+verified on your GitHub account, or your commits won't be credited to you. Keep commits attributable to their actual author. Do not add
 `Co-Authored-By` lines for AI tools.
 
 ## Before you finish a change

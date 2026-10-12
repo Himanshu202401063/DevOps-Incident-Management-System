@@ -21,6 +21,7 @@ The backend is the authority for status changes, timing, and permissions. Browse
 | `backend/` | Spring Boot application and Java tests |
 | `backend/src/main/resources/db/migration/` | Flyway database migrations |
 | `frontend/` | React screens, components, and frontend tests |
+| `frontend/vercel.json` | Vercel routing: `/api` to the Render backend, other paths to the app |
 | `docs/` | These design documents, actual elicitation evidence, and sprint notes |
 | `.github/workflows/` | Build and test workflow |
 | `compose.yaml` | Local database and application setup |
