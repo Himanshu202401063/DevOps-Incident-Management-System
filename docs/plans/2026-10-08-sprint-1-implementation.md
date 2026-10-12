@@ -237,6 +237,8 @@ database. It runs locally; it is not deployed on Render's free tier. Contract:
 Every suggestion names the past incidents it came from (FR-18.2). If the model fails or times
 out, the app carries on without suggestions (NFR-12).
 
+The features planned for later sprints are in the [AI/ML roadmap](ai-ml-roadmap.md).
+
 ---
 
 ## Testing
