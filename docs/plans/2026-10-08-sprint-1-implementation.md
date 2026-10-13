@@ -18,6 +18,8 @@ Record these in the `PROJECT.md` decision log before coding.
 | Creating an incident | Incident, copied SLA targets, timeline entry, and audit entry are saved in **one transaction** |
 | Service criticality | `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` |
 | Default response targets | SEV1 15 min, SEV2 60 min, SEV3 240 min, SEV4 1440 min. Resolution targets have no default |
+| Resolution targets | Optional. When present, not less than the response target. When absent, the incident has no resolution deadline |
+| Dev seed | Opt-in. Flyway reads only `db/migration` unless `FLYWAY_LOCATIONS` adds `db/devdata` (D27) |
 | Who manages services and users | Admin only |
 
 **Not in Sprint 1:** on-call, alerts, escalation, notifications, status changes, RabbitMQ, Redis, AI.
@@ -121,6 +123,7 @@ owns the tests that span features.
                "SEV3": { "responseMinutes": 240,  "resolutionMinutes": 2880 },
                "SEV4": { "responseMinutes": 1440, "resolutionMinutes": 10080 } } }
 // response adds "id" and returns "owner": { "id", "displayName" } instead of "ownerId"
+// "resolutionMinutes" may be null (no resolution target for that severity)
 
 // POST /api/incidents → 201
 { "title": "Checkout failing", "description": "…", "serviceId": 1, "severity": "SEV2" }
@@ -137,7 +140,8 @@ owns the tests that span features.
     "severity": "SEV2", "status": "OPEN", "createdAt": "…" } ]
 ```
 
-Timestamps are ISO-8601 UTC.
+Timestamps are ISO-8601 UTC. `resolutionTargetMinutes` and `resolutionDueAt` are `null` when the
+service has no resolution target for that severity.
 
 ### Errors
 
@@ -157,7 +161,7 @@ Flyway migrations in `backend/src/main/resources/db/migration`. New migrations a
 | Migration | Tables |
 | --- | --- |
 | `V1__users_and_audit.sql` | `app_user` (id, username unique, display_name, password_hash, role, enabled, token_version, created_at) · `audit_entry` (id, actor_id, action, item_type, item_id, details, recorded_at) |
-| `V2__catalog.sql` | `service` (id, name unique, description, owner_id, criticality, created_at, updated_at) · `service_sla_target` (service_id, severity, response_minutes, resolution_minutes; PK service_id + severity; resolution ≥ response) |
+| `V2__catalog.sql` | `service` (id, name unique, description, owner_id, criticality, created_at, updated_at) · `service_sla_target` (service_id, severity, response_minutes, resolution_minutes nullable; PK service_id + severity; resolution ≥ response when present) |
 | `V3__incidents_and_timeline.sql` | `incident` (id, title, description, service_id, severity, status, reporter_id, assignee_id nullable, created_at, response_target_minutes, resolution_target_minutes, version) · `timeline_entry` (id, incident_id, actor_id, event_type, details, recorded_at, corrects_entry_id nullable) |
 
 - `audit_entry` and `timeline_entry` get a `BEFORE UPDATE OR DELETE` trigger that raises an error, so they are append-only.
@@ -168,9 +172,10 @@ Flyway migrations in `backend/src/main/resources/db/migration`. New migrations a
 **Dev seed** `db/devdata/R__dev_seed.sql` (idempotent, `ON CONFLICT DO NOTHING`): users `admin`,
 `engineer`, `viewer`, all with password `DevPassw0rd!`, hash
 `{bcrypt}$2a$10$VIfFAxI6UFgBeWMdFEvAp.16koHo8wb8LRuqky0e47iWLefM5Huwm`; and service `Payments`
-with the targets above. Enable with
-`spring.flyway.locations=${FLYWAY_LOCATIONS:classpath:db/migration,classpath:db/devdata}`;
-production sets `FLYWAY_LOCATIONS=classpath:db/migration`.
+with the targets above. The seed is opt-in (D27):
+`spring.flyway.locations=${FLYWAY_LOCATIONS:classpath:db/migration}`, so production and the test
+suite run without it. Enable it locally with
+`FLYWAY_LOCATIONS=classpath:db/migration,classpath:db/devdata`.
 
 ---
 
