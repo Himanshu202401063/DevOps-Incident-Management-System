@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import java.util.List;
+import org.flywaydb.core.Flyway;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -26,6 +27,9 @@ class DatabaseSchemaTest {
 	@Autowired
 	private JdbcTemplate jdbc;
 
+	@Autowired
+	private Flyway flyway;
+
 	// Migration execution
 
 	@Test
@@ -34,8 +38,10 @@ class DatabaseSchemaTest {
 				"select version from flyway_schema_history where version is not null order by installed_rank", String.class);
 		Boolean allSucceeded = jdbc.queryForObject("select bool_and(success) from flyway_schema_history", Boolean.class);
 
-		assertThat(versions).containsExactly("1", "2", "3");
+		// Later migrations start at V4, so check the foundation comes first rather than the full list.
+		assertThat(versions).startsWith("1", "2", "3");
 		assertThat(allSucceeded).isTrue();
+		assertThat(flyway.info().pending()).isEmpty();
 	}
 
 	@Test
@@ -84,6 +90,15 @@ class DatabaseSchemaTest {
 		insertUser("asha");
 
 		assertThatThrownBy(() -> insertUser("asha"))
+				.isInstanceOf(DataIntegrityViolationException.class)
+				.hasMessageContaining("app_user_username_key");
+	}
+
+	@Test
+	void usernameDifferingOnlyInCaseIsRejected() {
+		insertUser("asha");
+
+		assertThatThrownBy(() -> insertUser("Asha"))
 				.isInstanceOf(DataIntegrityViolationException.class)
 				.hasMessageContaining("app_user_username_key");
 	}
@@ -205,18 +220,18 @@ class DatabaseSchemaTest {
 	void slaTargetRejectsZeroResponse() {
 		long service = insertService("Payments", insertUser("asha"), "HIGH");
 
-		assertThatThrownBy(() -> insertTarget(service, "SEV1", 0, null))
+		assertThatThrownBy(() -> insertTarget(service, "SEV1", 0, 240))
 				.isInstanceOf(DataIntegrityViolationException.class)
 				.hasMessageContaining("service_sla_target_response_check");
 	}
 
 	@Test
-	void slaTargetResolutionIsOptional() {
+	void slaTargetResolutionIsRequired() {
 		long service = insertService("Payments", insertUser("asha"), "HIGH");
-		insertTarget(service, "SEV1", 15, null);
 
-		assertThat(jdbc.queryForObject(
-				"select resolution_minutes from service_sla_target where service_id = ?", Integer.class, service)).isNull();
+		assertThatThrownBy(() -> insertTarget(service, "SEV1", 15, null))
+				.isInstanceOf(DataIntegrityViolationException.class)
+				.hasMessageContaining("resolution_minutes");
 	}
 
 	@Test
@@ -300,8 +315,8 @@ class DatabaseSchemaTest {
 
 		assertThatThrownBy(() -> jdbc.update("""
 				insert into incident (title, description, service_id, severity, status, reporter_id, created_at,
-				                      response_target_minutes)
-				values (null, 'Checkout failing', ?, 'SEV2', 'OPEN', ?, now(), 60)""", f.service, f.user))
+				                      response_target_minutes, resolution_target_minutes)
+				values (null, 'Checkout failing', ?, 'SEV2', 'OPEN', ?, now(), 60, 480)""", f.service, f.user))
 				.isInstanceOf(DataIntegrityViolationException.class)
 				.hasMessageContaining("title");
 	}
@@ -348,19 +363,18 @@ class DatabaseSchemaTest {
 	void incidentRejectsZeroResponseTarget() {
 		Fixture f = fixture();
 
-		assertThatThrownBy(() -> insertIncident(f.service, f.user, "SEV2", "OPEN", 0, null))
+		assertThatThrownBy(() -> insertIncident(f.service, f.user, "SEV2", "OPEN", 0, 480))
 				.isInstanceOf(DataIntegrityViolationException.class)
 				.hasMessageContaining("incident_response_target_check");
 	}
 
 	@Test
-	void incidentResolutionTargetIsOptional() {
+	void incidentResolutionTargetIsRequired() {
 		Fixture f = fixture();
 
-		long id = insertIncident(f.service, f.user, "SEV2", "OPEN", 60, null);
-
-		assertThat(jdbc.queryForObject("select resolution_target_minutes from incident where id = ?", Integer.class, id))
-				.isNull();
+		assertThatThrownBy(() -> insertIncident(f.service, f.user, "SEV2", "OPEN", 60, null))
+				.isInstanceOf(DataIntegrityViolationException.class)
+				.hasMessageContaining("resolution_target_minutes");
 	}
 
 	@Test
@@ -432,6 +446,18 @@ class DatabaseSchemaTest {
 		long incident = insertIncident(f.service, f.user, "SEV2", "OPEN", 60, 480);
 
 		assertThatThrownBy(() -> insertEntry(incident, f.user, -1L))
+				.isInstanceOf(DataIntegrityViolationException.class)
+				.hasMessageContaining("timeline_entry_corrects_entry_id_fkey");
+	}
+
+	@Test
+	void correctionMustBelongToTheSameIncident() {
+		Fixture f = fixture();
+		long incidentA = insertIncident(f.service, f.user, "SEV2", "OPEN", 60, 480);
+		long incidentB = insertIncident(f.service, f.user, "SEV3", "OPEN", 240, 2880);
+		long entryOnA = insertEntry(incidentA, f.user, null);
+
+		assertThatThrownBy(() -> insertEntry(incidentB, f.user, entryOnA))
 				.isInstanceOf(DataIntegrityViolationException.class)
 				.hasMessageContaining("timeline_entry_corrects_entry_id_fkey");
 	}

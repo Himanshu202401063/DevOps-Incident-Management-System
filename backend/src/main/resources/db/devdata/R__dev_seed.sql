@@ -7,7 +7,7 @@ INSERT INTO app_user (username, display_name, password_hash, role, created_at)
 VALUES ('admin',    'Dev Admin',    '{bcrypt}$2a$10$VIfFAxI6UFgBeWMdFEvAp.16koHo8wb8LRuqky0e47iWLefM5Huwm', 'ADMIN',    now()),
        ('engineer', 'Dev Engineer', '{bcrypt}$2a$10$VIfFAxI6UFgBeWMdFEvAp.16koHo8wb8LRuqky0e47iWLefM5Huwm', 'ENGINEER', now()),
        ('viewer',   'Dev Viewer',   '{bcrypt}$2a$10$VIfFAxI6UFgBeWMdFEvAp.16koHo8wb8LRuqky0e47iWLefM5Huwm', 'VIEWER',   now())
-ON CONFLICT (username) DO NOTHING;
+ON CONFLICT ((lower(username))) DO NOTHING;
 
 INSERT INTO service (name, description, owner_id, criticality, created_at, updated_at)
 SELECT 'Payments', 'Card and wallet payments', id, 'CRITICAL', now(), now()

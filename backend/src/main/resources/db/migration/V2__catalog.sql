@@ -14,15 +14,14 @@ CREATE TABLE service (
 
 CREATE INDEX service_owner_idx ON service (owner_id);
 
--- Resolution targets are optional (D23). A null one means no resolution deadline.
+-- The admin enters both targets for every severity (D23, still Open: this follows its working default).
 CREATE TABLE service_sla_target (
     service_id         bigint      NOT NULL REFERENCES service (id),
     severity           varchar(10) NOT NULL,
     response_minutes   integer     NOT NULL,
-    resolution_minutes integer,
+    resolution_minutes integer     NOT NULL,
     PRIMARY KEY (service_id, severity),
     CONSTRAINT service_sla_target_severity_check CHECK (severity IN ('SEV1', 'SEV2', 'SEV3', 'SEV4')),
     CONSTRAINT service_sla_target_response_check CHECK (response_minutes > 0),
-    CONSTRAINT service_sla_target_resolution_check
-        CHECK (resolution_minutes IS NULL OR resolution_minutes >= response_minutes)
+    CONSTRAINT service_sla_target_resolution_check CHECK (resolution_minutes >= response_minutes)
 );

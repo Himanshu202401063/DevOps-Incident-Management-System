@@ -13,9 +13,12 @@ CREATE TABLE app_user (
     -- Carried in the JWT; logout or a role change increments it (D21).
     token_version integer      NOT NULL DEFAULT 0,
     created_at    timestamptz  NOT NULL,
-    CONSTRAINT app_user_username_key UNIQUE (username),
     CONSTRAINT app_user_role_check CHECK (role IN ('ADMIN', 'ENGINEER', 'VIEWER'))
 );
+
+-- Usernames are unique regardless of case: "Admin" and "admin" are the same user. Look them up
+-- with lower(username) = lower(?) so this index applies.
+CREATE UNIQUE INDEX app_user_username_key ON app_user (lower(username));
 
 -- Rejects any change to an append-only table. Corrections are new rows, never edits.
 CREATE FUNCTION reject_append_only_change() RETURNS trigger

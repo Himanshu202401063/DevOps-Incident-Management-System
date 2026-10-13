@@ -14,15 +14,14 @@ CREATE TABLE incident (
     created_at                timestamptz  NOT NULL,
     -- Copied from the service at creation and never changed afterwards.
     response_target_minutes   integer      NOT NULL,
-    resolution_target_minutes integer,
+    resolution_target_minutes integer      NOT NULL,
     version                   bigint       NOT NULL DEFAULT 0,
     CONSTRAINT incident_severity_check CHECK (severity IN ('SEV1', 'SEV2', 'SEV3', 'SEV4')),
     -- Which transitions are legal is decided in Java; the database only knows the values.
     CONSTRAINT incident_status_check CHECK (status IN
         ('OPEN', 'ACKNOWLEDGED', 'INVESTIGATING', 'IDENTIFIED', 'MONITORING', 'RESOLVED', 'CLOSED')),
     CONSTRAINT incident_response_target_check CHECK (response_target_minutes > 0),
-    CONSTRAINT incident_resolution_target_check
-        CHECK (resolution_target_minutes IS NULL OR resolution_target_minutes >= response_target_minutes)
+    CONSTRAINT incident_resolution_target_check CHECK (resolution_target_minutes >= response_target_minutes)
 );
 
 CREATE INDEX incident_service_idx ON incident (service_id);
@@ -37,7 +36,11 @@ CREATE TABLE timeline_entry (
     details           text        NOT NULL,
     recorded_at       timestamptz NOT NULL,
     -- A correction is a new entry pointing at the one it corrects.
-    corrects_entry_id bigint      REFERENCES timeline_entry (id),
+    corrects_entry_id bigint,
+    CONSTRAINT timeline_entry_incident_entry_key UNIQUE (incident_id, id),
+    -- The corrected entry must belong to the same incident. A null corrects_entry_id skips the check.
+    CONSTRAINT timeline_entry_corrects_entry_id_fkey
+        FOREIGN KEY (incident_id, corrects_entry_id) REFERENCES timeline_entry (incident_id, id),
     CONSTRAINT timeline_entry_no_self_correction CHECK (corrects_entry_id <> id)
 );
 
