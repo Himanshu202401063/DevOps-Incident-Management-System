@@ -73,20 +73,20 @@ Version check, 22 September 2026: the [official project page](https://spring.io/
 
 ## Team
 
-| Student ID | Name | Sub-team |
+| Student ID | Name | Roles |
 | --- | --- | --- |
-| 202401041 | Christian Shane Prashant | Team 1 |
-| 202401051 | Diwan Shlok Dineshkumar | Team 1 |
-| 202401063 | Gohel Himanshu Shaileshbhai | Team 1 |
-| 202401029 | Bhatiya Dhruva Jiteshbhai | Team 2 |
-| 202401026 | Bhakti Sudhir Patolia | Team 2 |
-| 202401044 | Darji Utsav Girish | Team 2 |
-| 202401021 | Bechara Utsav Bhaveshbhai | Team 3 |
-| 202401014 | Manan Amreliya | Team 3 |
-| 202401070 | Jada Manush Alpeshbhai | Team 3 |
-| 202401033 | Bhungaliya Het Bhaveshbhai | Team 3 |
+| 202401041 | Christian Shane Prashant | Backend, DevOps, Reviewer |
+| 202401051 | Diwan Shlok Dineshkumar | Backend, AI/ML |
+| 202401063 | Gohel Himanshu Shaileshbhai | AI/ML |
+| 202401029 | Bhatiya Dhruva Jiteshbhai | Frontend, Testing |
+| 202401026 | Bhakti Sudhir Patolia | Frontend, AI/ML |
+| 202401044 | Darji Utsav Girish | Testing |
+| 202401021 | Bechara Utsav Bhaveshbhai | Backend |
+| 202401014 | Manan Amreliya | Frontend |
+| 202401070 | Jada Manush Alpeshbhai | Testing |
+| 202401033 | Bhungaliya Het Bhaveshbhai | Frontend, Testing |
 
-Every member should implement and test a meaningful part, make their own commits, and review another member's work. Use Slack for team communication and GitHub for issues, code, and reviews.
+Every member should implement and test a meaningful part and make their own commits. Shane reviews and merges pull requests. Use Slack for team communication and GitHub for issues, code, and reviews.
 
 ## Short decision log
 
@@ -107,7 +107,7 @@ Selected means a design choice adopted in this pack, not completed stakeholder v
 | D20 | Application roles | Selected: `ADMIN`, `ENGINEER`, `VIEWER` | Team 1 | Recorded 2026-10-11 |
 | D21 | How do users authenticate? | Selected: stateless JWT (HS256) sent as a Bearer header and kept in `sessionStorage`. A per-user `token_version` revokes old tokens on logout or role change. CSRF is disabled because the browser never sends the token on its own | Shane | Recorded 2026-10-11 |
 | D22 | What does creating an incident record in Sprint 1? | Selected: the incident, its copied SLA targets, a timeline entry, and an audit entry, in one transaction (E4a, epics Decision 3) | Utsav B | Recorded 2026-10-11 |
-| D23 | Service criticality and default targets | Selected: criticality `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`; severities SEV1–SEV4; default response targets SEV1 15, SEV2 60, SEV3 240, SEV4 1440 minutes (C7). Resolution targets are optional; when present they are not less than the response target, and when absent the incident has no resolution deadline | Himanshu | Recorded 2026-10-12 |
+| D23 | Service criticality and default targets | Open: criticality `LOW`/`MEDIUM`/`HIGH`/`CRITICAL`; default response targets SEV1 15, SEV2 60, SEV3 240, SEV4 1440 minutes (C7); resolution targets entered by the admin | Utsav B | Review 2026-10-14 |
 | D24 | Messaging and cache | Selected: RabbitMQ through a transactional outbox, added when the first async consumer lands; Redis optional, for live updates (HLD v2) | Shane | Recorded 2026-10-11 |
 | D25 | Where is the app hosted? | Selected: frontend on Vercel, backend on Render (Docker), PostgreSQL on Supabase, UptimeRobot pinging `/actuator/health` to keep the backend awake | Shane | Recorded 2026-10-11 |
 | D26 | Which database schema holds our tables? | Selected: `incident`, managed by Flyway. Supabase keeps its own objects in `public`, and its Data API only exposes `public` | Shane | Recorded 2026-10-12 |

@@ -34,7 +34,7 @@ Use **Planned - not run**, **Optional - not selected**, **Deferred**, or **Scope
 1. Put the selected story in a GitHub issue with acceptance criteria.
 2. Implement it on a short-lived branch and keep commits attributable to their authors.
 3. Run relevant tests and open a focused pull request.
-4. Have another member review the behavior and code.
+4. Shane, the team's reviewer, reviews the behavior and code.
 5. Merge when required checks pass and demonstrate the result during sprint review.
 
 CI should build the backend and frontend and run the tests already configured. Add database integration tests when persistence behavior is introduced. Run targeted mutation tests at a planned checkpoint or on demand. Do not require a real local model in CI.

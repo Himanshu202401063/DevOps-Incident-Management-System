@@ -25,11 +25,13 @@ This is the smallest slice that touches every layer: frontend, backend, database
 
 ### Stories
 
-| Story | Description | Priority | Suggested team |
+| Story | Description | Priority | Owners |
 |---|---|---|---|
-| US-01 | Manage users and roles | Must | Team 1 |
-| US-05 | Register a service | Must | Team 2 |
-| US-03 | Create incident manually | Must | Team 3 |
+| US-01 | Manage users and roles | Must | Shane (login), Shlok (user administration) |
+| US-05 | Register a service | Must | Utsav B |
+| US-03 | Create incident manually | Must | Utsav B |
+
+Frontend, testing, and AI/ML work for these stories is split per member in the [Sprint 1 implementation plan](plans/2026-10-08-sprint-1-implementation.md).
 
 ### Sprint 1 scope for each story
 
