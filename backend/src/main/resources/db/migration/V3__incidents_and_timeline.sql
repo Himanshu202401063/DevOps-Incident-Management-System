@@ -7,9 +7,8 @@ CREATE TABLE incident (
     service_id                bigint       NOT NULL REFERENCES service (id),
     severity                  varchar(10)  NOT NULL,
     status                    varchar(20)  NOT NULL,
-    -- Assumption pending team confirmation: always a user in Sprint 1. Alert-created
-    -- incidents, if they need no reporter, arrive with a later migration.
-    reporter_id               bigint       NOT NULL REFERENCES app_user (id),
+    -- Null when the system created the incident, e.g. from an alert (FR-03.4).
+    reporter_id               bigint       REFERENCES app_user (id),
     assignee_id               bigint       REFERENCES app_user (id),
     created_at                timestamptz  NOT NULL,
     -- Copied from the service at creation and never changed afterwards.
@@ -26,26 +25,35 @@ CREATE TABLE incident (
 
 CREATE INDEX incident_service_idx ON incident (service_id);
 CREATE INDEX incident_created_idx ON incident (created_at DESC, id DESC);
+CREATE INDEX incident_status_idx ON incident (status);
+CREATE INDEX incident_reporter_idx ON incident (reporter_id);
+CREATE INDEX incident_assignee_idx ON incident (assignee_id);
 
 CREATE TABLE timeline_entry (
     id                bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     incident_id       bigint      NOT NULL REFERENCES incident (id),
-    -- Assumption pending team confirmation: always a user in Sprint 1 (see audit_entry).
-    actor_id          bigint      NOT NULL REFERENCES app_user (id),
+    -- Null when the system acted rather than a user, e.g. an escalation (FR-08.2).
+    actor_id          bigint      REFERENCES app_user (id),
+    -- Codes such as INCIDENT_CREATED. The values belong to the Java enum; the database checks the form.
     event_type        varchar(50) NOT NULL,
     details           text        NOT NULL,
     recorded_at       timestamptz NOT NULL,
     -- A correction is a new entry pointing at the one it corrects.
     corrects_entry_id bigint,
+    CONSTRAINT timeline_entry_event_type_check CHECK (event_type ~ '^[A-Z][A-Z0-9_]*$'),
     CONSTRAINT timeline_entry_incident_entry_key UNIQUE (incident_id, id),
     -- The corrected entry must belong to the same incident. A null corrects_entry_id skips the check.
     CONSTRAINT timeline_entry_corrects_entry_id_fkey
-        FOREIGN KEY (incident_id, corrects_entry_id) REFERENCES timeline_entry (incident_id, id),
-    CONSTRAINT timeline_entry_no_self_correction CHECK (corrects_entry_id <> id)
+        FOREIGN KEY (incident_id, corrects_entry_id) REFERENCES timeline_entry (incident_id, id)
 );
 
 CREATE INDEX timeline_entry_incident_idx ON timeline_entry (incident_id, recorded_at, id);
+CREATE INDEX timeline_entry_actor_idx ON timeline_entry (actor_id);
 
 CREATE TRIGGER timeline_entry_append_only
     BEFORE UPDATE OR DELETE ON timeline_entry
     FOR EACH ROW EXECUTE FUNCTION reject_append_only_change();
+
+CREATE TRIGGER timeline_entry_no_truncate
+    BEFORE TRUNCATE ON timeline_entry
+    FOR EACH STATEMENT EXECUTE FUNCTION reject_append_only_change();

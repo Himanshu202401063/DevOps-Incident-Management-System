@@ -162,11 +162,12 @@ Flyway migrations in `backend/src/main/resources/db/migration`. New migrations a
 
 | Migration | Tables |
 | --- | --- |
-| `V1__users_and_audit.sql` | `app_user` (id, username unique regardless of case, display_name, password_hash, role, enabled, token_version, created_at) · `audit_entry` (id, actor_id, action, item_type, item_id, details, recorded_at) |
+| `V1__users_and_audit.sql` | `app_user` (id, username unique regardless of case, display_name, password_hash varchar(255), role, enabled, token_version, created_at) · `audit_entry` (id, actor_id nullable for system actions, action, item_type, item_id, details, recorded_at) |
 | `V2__catalog.sql` | `service` (id, name unique, description, owner_id, criticality, created_at, updated_at) · `service_sla_target` (service_id, severity, response_minutes, resolution_minutes; PK service_id + severity; resolution ≥ response) |
-| `V3__incidents_and_timeline.sql` | `incident` (id, title, description, service_id, severity, status, reporter_id, assignee_id nullable, created_at, response_target_minutes, resolution_target_minutes, version) · `timeline_entry` (id, incident_id, actor_id, event_type, details, recorded_at, corrects_entry_id nullable, same incident only) |
+| `V3__incidents_and_timeline.sql` | `incident` (id, title, description, service_id, severity, status, reporter_id nullable for system-created incidents, assignee_id nullable, created_at, response_target_minutes, resolution_target_minutes, version) · `timeline_entry` (id, incident_id, actor_id nullable for system actions, event_type, details, recorded_at, corrects_entry_id nullable, same incident only) |
 
-- `audit_entry` and `timeline_entry` get a `BEFORE UPDATE OR DELETE` trigger that raises an error, so they are append-only.
+- `audit_entry` and `timeline_entry` get `BEFORE UPDATE OR DELETE` and `BEFORE TRUNCATE` triggers that raise an error, so they are append-only.
+- `action`, `item_type`, and `event_type` must be upper-case codes such as `USER_CREATED`; the Java enums own the values.
 - The table is `app_user` because `user` is reserved in PostgreSQL.
 - Tables live in the `incident` schema (D26). Use unqualified names in migrations.
 - Enums are `varchar` columns with a `CHECK` constraint. Timestamps are `timestamptz`.
@@ -177,7 +178,9 @@ Flyway migrations in `backend/src/main/resources/db/migration`. New migrations a
 with the targets above. The seed is opt-in (D27):
 `spring.flyway.locations=${FLYWAY_LOCATIONS:classpath:db/migration}`, so production and the test
 suite run without it. Enable it locally with
-`FLYWAY_LOCATIONS=classpath:db/migration,classpath:db/devdata`.
+`FLYWAY_LOCATIONS=classpath:db/migration,classpath:db/devdata`. Flyway ignores a missing repeatable
+migration (`spring.flyway.ignore-migration-patterns=*:future,repeatable:missing`), so a database that
+loaded the seed still starts without it; the seed's rows stay.
 
 ---
 

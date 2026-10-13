@@ -76,14 +76,20 @@ FLYWAY_LOCATIONS=classpath:db/migration,classpath:db/devdata ./mvnw spring-boot:
 
 For `docker compose --profile app`, uncomment `FLYWAY_LOCATIONS` in `.env` instead.
 
-A database that has loaded the seed must keep loading it: Flyway refuses to start if a migration
-it applied before is missing from the locations. To try the other mode, use a throwaway database
-rather than resetting your volume:
+Turning the seed off again is fine: the same database still starts, but the seed's users and
+service stay in it. For a database without them, or to try the seed without touching your own,
+use a throwaway database instead of resetting your volume:
 
 ```bash
 docker run --rm -d --name incident-scratch -p 5434:5432 \
   -e POSTGRES_DB=incident -e POSTGRES_USER=incident -e POSTGRES_PASSWORD=incident postgres:16
+
+# Without the seed
 DB_URL=jdbc:postgresql://localhost:5434/incident ./mvnw spring-boot:run
+# Or with it
+DB_URL=jdbc:postgresql://localhost:5434/incident \
+  FLYWAY_LOCATIONS=classpath:db/migration,classpath:db/devdata ./mvnw spring-boot:run
+
 docker stop incident-scratch    # removes the container and its data
 ```
 

@@ -77,6 +77,19 @@ class DatabaseSchemaTest {
 	}
 
 	@Test
+	void passwordHashHasRoomForLongerEncoders() {
+		// The length of an {argon2@SpringSecurity_v5_8} hash from Spring Security's defaults.
+		String argon2Sized = "{argon2@SpringSecurity_v5_8}" + "x".repeat(97);
+
+		long id = jdbc.queryForObject("""
+				insert into app_user (username, display_name, password_hash, role, created_at)
+				values ('asha', 'Asha', ?, 'ENGINEER', now()) returning id""", Long.class, argon2Sized);
+
+		assertThat(jdbc.queryForObject("select length(password_hash) from app_user where id = ?", Integer.class, id))
+				.isEqualTo(125);
+	}
+
+	@Test
 	void unknownRoleIsRejected() {
 		assertThatThrownBy(() -> jdbc.update("""
 				insert into app_user (username, display_name, password_hash, role, created_at)
@@ -120,6 +133,47 @@ class DatabaseSchemaTest {
 		assertThatThrownBy(() -> insertAudit(-1))
 				.isInstanceOf(DataIntegrityViolationException.class)
 				.hasMessageContaining("audit_entry_actor_id_fkey");
+	}
+
+	@Test
+	void auditEntryMayComeFromTheSystem() {
+		Long actor = jdbc.queryForObject("""
+				insert into audit_entry (actor_id, action, item_type, item_id, details, recorded_at)
+				values (null, 'ESCALATION_POLICY_APPLIED', 'INCIDENT', 1, 'Scheduled step', now())
+				returning actor_id""", Long.class);
+
+		assertThat(actor).isNull();
+	}
+
+	@Test
+	void auditActionMustBeACode() {
+		long actor = insertUser("asha");
+
+		assertThatThrownBy(() -> jdbc.update("""
+				insert into audit_entry (actor_id, action, item_type, item_id, details, recorded_at)
+				values (?, 'created a user', 'USER', 1, 'Created', now())""", actor))
+				.isInstanceOf(DataIntegrityViolationException.class)
+				.hasMessageContaining("audit_entry_action_check");
+	}
+
+	@Test
+	void auditItemTypeMustBeACode() {
+		long actor = insertUser("asha");
+
+		assertThatThrownBy(() -> jdbc.update("""
+				insert into audit_entry (actor_id, action, item_type, item_id, details, recorded_at)
+				values (?, 'USER_CREATED', 'user', 1, 'Created', now())""", actor))
+				.isInstanceOf(DataIntegrityViolationException.class)
+				.hasMessageContaining("audit_entry_item_type_check");
+	}
+
+	@Test
+	void auditLogCannotBeTruncated() {
+		insertAudit(insertUser("asha"));
+
+		assertThatThrownBy(() -> jdbc.execute("truncate audit_entry"))
+				.isInstanceOf(DataAccessException.class)
+				.hasMessageContaining("audit_entry is append-only");
 	}
 
 	@Test
@@ -322,12 +376,12 @@ class DatabaseSchemaTest {
 	}
 
 	@Test
-	void incidentRequiresReporter() {
+	void incidentMayBeCreatedByTheSystem() {
 		Fixture f = fixture();
 
-		assertThatThrownBy(() -> insertIncident(f.service, null, "SEV2", "OPEN", 60, 480))
-				.isInstanceOf(DataIntegrityViolationException.class)
-				.hasMessageContaining("reporter_id");
+		long id = insertIncident(f.service, null, "SEV2", "OPEN", 60, 480);
+
+		assertThat(jdbc.queryForObject("select reporter_id from incident where id = ?", Long.class, id)).isNull();
 	}
 
 	@Test
@@ -463,17 +517,37 @@ class DatabaseSchemaTest {
 	}
 
 	@Test
-	void timelineEntryCannotCorrectItself() {
+	void timelineEntryMayComeFromTheSystem() {
 		Fixture f = fixture();
 		long incident = insertIncident(f.service, f.user, "SEV2", "OPEN", 60, 480);
 
-		// The id is generated, so supplying it is the only way to make an entry point at itself.
+		Long actor = jdbc.queryForObject("""
+				insert into timeline_entry (incident_id, actor_id, event_type, details, recorded_at)
+				values (?, null, 'ESCALATED', 'Notified the next contact', now()) returning actor_id""", Long.class, incident);
+
+		assertThat(actor).isNull();
+	}
+
+	@Test
+	void timelineEventTypeMustBeACode() {
+		Fixture f = fixture();
+		long incident = insertIncident(f.service, f.user, "SEV2", "OPEN", 60, 480);
+
 		assertThatThrownBy(() -> jdbc.update("""
-				insert into timeline_entry (id, incident_id, actor_id, event_type, details, recorded_at, corrects_entry_id)
-				overriding system value
-				values (999999, ?, ?, 'COMMENT', 'Note', now(), 999999)""", incident, f.user))
+				insert into timeline_entry (incident_id, actor_id, event_type, details, recorded_at)
+				values (?, ?, 'status changed', 'Moved on', now())""", incident, f.user))
 				.isInstanceOf(DataIntegrityViolationException.class)
-				.hasMessageContaining("timeline_entry_no_self_correction");
+				.hasMessageContaining("timeline_entry_event_type_check");
+	}
+
+	@Test
+	void timelineCannotBeTruncated() {
+		Fixture f = fixture();
+		insertEntry(insertIncident(f.service, f.user, "SEV2", "OPEN", 60, 480), f.user, null);
+
+		assertThatThrownBy(() -> jdbc.execute("truncate timeline_entry"))
+				.isInstanceOf(DataAccessException.class)
+				.hasMessageContaining("timeline_entry is append-only");
 	}
 
 	@Test

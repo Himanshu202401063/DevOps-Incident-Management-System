@@ -6,36 +6,54 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
+import org.flywaydb.core.Flyway;
+import org.flywaydb.core.api.MigrationInfo;
+import org.flywaydb.core.api.output.MigrateResult;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
- * The dev seed loads only when its location is named explicitly (D27). This class opts in, which
- * gives it its own application context and therefore its own PostgreSQL container; the other
- * integration tests stay seed-free.
+ * The dev seed loads only when its location is named explicitly (D27). These tests share the
+ * default context and its database: the seed's contents are checked inside the rolled-back test
+ * transaction, and the one check that has to commit uses a throwaway schema.
  */
 @IntegrationTest
-@TestPropertySource(properties = "spring.flyway.locations=classpath:db/migration,classpath:db/devdata")
 class DevSeedTest {
+
+	private static final String SEED = "db/devdata/R__dev_seed.sql";
+
+	private static final String CHECK_SCHEMA = "dev_seed_check";
 
 	@Autowired
 	private JdbcTemplate jdbc;
 
-	@Test
-	void seedRunsAsARepeatableMigrationWhenOptedIn() {
-		Map<String, Object> row = jdbc.queryForMap(
-				"select description, success from flyway_schema_history where version is null and type = 'SQL'");
+	@Autowired
+	private Flyway flyway;
 
-		assertThat(row).containsEntry("description", "dev seed").containsEntry("success", true);
+	@Test
+	void seedIsNotPartOfTheDefaultMigrations() {
+		assertThat(flyway.info().all()).extracting(MigrationInfo::getDescription).doesNotContain("dev seed");
 	}
 
 	@Test
-	void seedCreatesOneEnabledUserPerRole() {
+	void seedIsFoundOnceItsLocationIsAdded() {
+		Flyway optedIn = Flyway.configure().configuration(flyway.getConfiguration())
+				.locations("classpath:db/migration", "classpath:db/devdata")
+				.load();
+
+		assertThat(optedIn.info().pending()).extracting(MigrationInfo::getDescription).containsExactly("dev seed");
+	}
+
+	@Test
+	void seedCreatesOneEnabledUserPerRole() throws IOException {
+		runSeed();
+
 		List<String> users = jdbc.queryForList("""
 				select username || ':' || role || ':' || enabled || ':' || token_version
 				from app_user order by username""", String.class);
@@ -44,7 +62,8 @@ class DevSeedTest {
 	}
 
 	@Test
-	void seedPasswordIsDevPassw0rd() {
+	void seedPasswordIsDevPassw0rd() throws IOException {
+		runSeed();
 		PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
 
 		for (String hash : jdbc.queryForList("select password_hash from app_user", String.class)) {
@@ -53,7 +72,9 @@ class DevSeedTest {
 	}
 
 	@Test
-	void seedRegistersPaymentsWithTargets() {
+	void seedRegistersPaymentsWithTargets() throws IOException {
+		runSeed();
+
 		Map<String, Object> service = jdbc.queryForMap("""
 				select s.criticality, u.username as owner
 				from service s join app_user u on u.id = s.owner_id
@@ -71,11 +92,47 @@ class DevSeedTest {
 	void seedIsIdempotent() throws IOException {
 		String counts = "select (select count(*) from app_user) || '/' || (select count(*) from service)"
 				+ " || '/' || (select count(*) from service_sla_target)";
-		String before = jdbc.queryForObject(counts, String.class);
+		runSeed();
+		String once = jdbc.queryForObject(counts, String.class);
 
-		jdbc.execute(new ClassPathResource("db/devdata/R__dev_seed.sql").getContentAsString(StandardCharsets.UTF_8));
+		runSeed();
 
-		assertThat(jdbc.queryForObject(counts, String.class)).isEqualTo(before).isEqualTo("3/1/4");
+		assertThat(jdbc.queryForObject(counts, String.class)).isEqualTo(once).isEqualTo("3/1/4");
+	}
+
+	/**
+	 * Flyway commits, so this runs outside the test transaction, in its own schema, and drops it after.
+	 * It uses the application's real ignore-migration-patterns setting.
+	 */
+	@Test
+	@Transactional(propagation = Propagation.NOT_SUPPORTED)
+	void databaseThatLoadedTheSeedStillStartsWithoutIt() {
+		try {
+			Flyway seeded = Flyway.configure().configuration(flyway.getConfiguration())
+					.schemas(CHECK_SCHEMA)
+					.defaultSchema(CHECK_SCHEMA)
+					.locations("classpath:db/migration", "classpath:db/devdata")
+					.load();
+			MigrateResult result = seeded.migrate();
+
+			Flyway withoutSeed = Flyway.configure().configuration(seeded.getConfiguration())
+					.locations("classpath:db/migration")
+					.load();
+			Flyway withoutSeedOrPattern = Flyway.configure().configuration(withoutSeed.getConfiguration())
+					.ignoreMigrationPatterns("*:future")
+					.load();
+
+			assertThat(result.migrations).extracting(m -> m.description).contains("dev seed");
+			assertThat(withoutSeed.validateWithResult().validationSuccessful).isTrue();
+			assertThat(withoutSeedOrPattern.validateWithResult().validationSuccessful).isFalse();
+		}
+		finally {
+			jdbc.execute("drop schema if exists " + CHECK_SCHEMA + " cascade");
+		}
+	}
+
+	private void runSeed() throws IOException {
+		jdbc.execute(new ClassPathResource(SEED).getContentAsString(StandardCharsets.UTF_8));
 	}
 
 }
