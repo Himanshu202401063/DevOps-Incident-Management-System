@@ -112,5 +112,8 @@ Selected means a design choice adopted in this pack, not completed stakeholder v
 | D25 | Where is the app hosted? | Selected: frontend on Vercel, backend on Render (Docker), PostgreSQL on Supabase, UptimeRobot pinging `/actuator/health` to keep the backend awake | Shane | Recorded 2026-10-11 |
 | D26 | Which database schema holds our tables? | Selected: `incident`, managed by Flyway. Supabase keeps its own objects in `public`, and its Data API only exposes `public` | Shane | Recorded 2026-10-12 |
 | D27 | Is development seed data loaded by default? | Selected: no. Flyway reads only `classpath:db/migration` unless `FLYWAY_LOCATIONS` also names `classpath:db/devdata`, so production never receives the dev users (Sprint 1 plan, Database) | Shlok | Recorded 2026-10-12 |
+| D28 | Where do AI models run? | Selected: self-hosted through Ollama, on a team machine or our own container. Incident data is not sent to external AI providers (NFR-12.1) | Himanshu | Recorded 2026-10-13 |
+| D29 | Is service health monitoring required? | Selected: Must (FR-22). The project brief lists "monitor service health"; recovery never resolves an incident automatically | Shane | Recorded 2026-10-13 |
+| D30 | Which requirements document is current? | Selected: `docs/REQUIREMENTS.md`. `Group-2.pdf` is the submitted version; IDs never change | Shane | Recorded 2026-10-13 |
 
 Before implementing an affected rule, its owner should record the team's decision, actual date, and Slack or issue reference. Optional features need not block EPIC 1. If a suggested review date does not fit the sprint, change it explicitly rather than presenting the review as completed.
