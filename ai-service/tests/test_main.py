@@ -117,7 +117,7 @@ def test_suggest_based_on_uses_provided_past_incident_ids():
 
 
 def test_suggest_with_empty_past_incidents():
-    """Handles empty pastIncidents gracefully returning suggestions with empty citations."""
+    """Handles empty pastIncidents by returning empty suggestions list since every suggestion must cite a source (FR-18.2)."""
     payload = {
         "incident": {
             "title": "New unknown anomaly",
@@ -131,8 +131,7 @@ def test_suggest_with_empty_past_incidents():
     assert response.status_code == 200
     data = response.json()
     assert data["aiGenerated"] is True
-    assert len(data["suggestions"]) > 0
-    assert data["suggestions"][0]["basedOn"] == []
+    assert data["suggestions"] == []
 
 
 # ---------------------------------------------------------------------------

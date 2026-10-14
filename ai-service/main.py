@@ -166,13 +166,8 @@ def suggest(request: SuggestRequest) -> SuggestResponse:
                 )
             )
     else:
-        # Default fallback suggestion when no past incidents are provided
-        suggestions = [
-            Suggestion(
-                step="Check service logs, recent deployments, and system resource metrics",
-                basedOn=[],
-            )
-        ]
+        # Every suggestion must name its source (FR-18.2); return empty list when no past incidents are provided
+        suggestions = []
 
     return SuggestResponse(
         aiGenerated=True,

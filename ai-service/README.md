@@ -10,8 +10,8 @@
 | Deliverable | Status | Description |
 |---|---|---|
 | **`ai-service/` Skeleton** |  Completed | Python + FastAPI service with `GET /health` and `POST /suggest`. |
-| **AI Contract Shape** |  Completed | `POST /suggest` returns a fixed example matching the exact contract required by FR-18.1, FR-18.2, and FR-19. |
-| **Pytest Suite** |  Completed | 6 automated tests validating status codes, contract shape, and payload validation (422). |
+| **AI Contract Shape** |  Completed | `POST /suggest` matches the exact AI contract shape with citations derived from past incidents (FR-18.1, FR-18.2). |
+| **Pytest Suite** |  Completed | 11 automated tests validating status codes, contract shape, dynamic citations, and payload validation (422). |
 | **CI Workflow** |  Completed | GitHub Actions job (`.github/workflows/ci.yml`) running pytest using the stub (no heavy model in CI). |
 | **Ollama Local Setup** |  Completed | Verified local Ollama daemon (`v0.40.3`); selected small model suited for local hardware. |
 
