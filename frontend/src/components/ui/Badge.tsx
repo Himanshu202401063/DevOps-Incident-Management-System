@@ -1,4 +1,5 @@
 import type { HTMLAttributes, ReactNode } from 'react'
+import { cn } from './cn'
 
 export type UserRole = 'ADMIN' | 'ENGINEER' | 'VIEWER'
 export type Severity = 'SEV1' | 'SEV2' | 'SEV3' | 'SEV4'
@@ -32,7 +33,7 @@ const variantStyles: Record<BadgeVariant, string> = {
 export function Badge({
   variant = 'neutral',
   size = 'md',
-  className = '',
+  className,
   children,
   ...props
 }: BadgeProps) {
@@ -40,7 +41,12 @@ export function Badge({
 
   return (
     <span
-      className={`inline-flex items-center font-medium rounded-full border tracking-wide uppercase ${sizeClass} ${variantStyles[variant]} ${className}`}
+      className={cn(
+        'inline-flex items-center font-medium rounded-full border tracking-wide uppercase',
+        sizeClass,
+        variantStyles[variant],
+        className,
+      )}
       {...props}
     >
       {children}
@@ -85,7 +91,7 @@ export function SeverityBadge({
 
   const config = styles[severity] ?? { variant: 'neutral', label: severity, custom: '' }
   return (
-    <Badge variant={config.variant} className={`${config.custom ?? ''} ${className}`}>
+    <Badge variant={config.variant} className={cn(config.custom, className)}>
       {config.label}
     </Badge>
   )

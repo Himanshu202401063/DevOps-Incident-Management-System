@@ -1,4 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
+import { cn } from './cn'
 
 export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'destructive' | 'ghost'
 export type ButtonSize = 'sm' | 'md' | 'lg'
@@ -39,7 +40,7 @@ export function Button({
   leftIcon,
   rightIcon,
   children,
-  className = '',
+  className,
   type = 'button',
   ...props
 }: ButtonProps) {
@@ -50,7 +51,12 @@ export function Button({
       type={type}
       disabled={isDisabled}
       aria-busy={isLoading}
-      className={`inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+      className={cn(
+        'inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed',
+        variantStyles[variant],
+        sizeStyles[size],
+        className,
+      )}
       {...props}
     >
       {isLoading && (

@@ -5,52 +5,53 @@ import type {
   TdHTMLAttributes,
   ReactNode,
 } from 'react'
+import { cn } from './cn'
 
-export function Table({ className = '', children, ...props }: TableHTMLAttributes<HTMLTableElement>) {
+export function Table({ className, children, ...props }: TableHTMLAttributes<HTMLTableElement>) {
   return (
     <div className="w-full overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-      <table className={`w-full text-left text-sm text-gray-700 ${className}`} {...props}>
+      <table className={cn('w-full text-left text-sm text-gray-700', className)} {...props}>
         {children}
       </table>
     </div>
   )
 }
 
-export function TableHeader({ className = '', children, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
+export function TableHeader({ className, children, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
   return (
-    <thead className={`bg-gray-50 border-b border-gray-200 text-xs font-semibold uppercase text-gray-600 ${className}`} {...props}>
+    <thead className={cn('bg-gray-50 border-b border-gray-200 text-xs font-semibold uppercase text-gray-600', className)} {...props}>
       {children}
     </thead>
   )
 }
 
-export function TableBody({ className = '', children, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
+export function TableBody({ className, children, ...props }: HTMLAttributes<HTMLTableSectionElement>) {
   return (
-    <tbody className={`divide-y divide-gray-200 bg-white ${className}`} {...props}>
+    <tbody className={cn('divide-y divide-gray-200 bg-white', className)} {...props}>
       {children}
     </tbody>
   )
 }
 
-export function TableRow({ className = '', children, ...props }: HTMLAttributes<HTMLTableRowElement>) {
+export function TableRow({ className, children, ...props }: HTMLAttributes<HTMLTableRowElement>) {
   return (
-    <tr className={`transition-colors hover:bg-gray-50/80 ${className}`} {...props}>
+    <tr className={cn('transition-colors hover:bg-gray-50/80', className)} {...props}>
       {children}
     </tr>
   )
 }
 
-export function TableHead({ className = '', children, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
+export function TableHead({ className, children, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
   return (
-    <th className={`px-4 py-3.5 font-semibold text-gray-900 ${className}`} {...props}>
+    <th className={cn('px-4 py-3.5 font-semibold text-gray-900', className)} {...props}>
       {children}
     </th>
   )
 }
 
-export function TableCell({ className = '', children, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
+export function TableCell({ className, children, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
   return (
-    <td className={`px-4 py-3 align-middle text-gray-700 ${className}`} {...props}>
+    <td className={cn('px-4 py-3 align-middle text-gray-700', className)} {...props}>
       {children}
     </td>
   )
@@ -60,7 +61,7 @@ export function TableEmpty({
   colSpan,
   message = 'No data found',
   description,
-  className = '',
+  className,
 }: {
   colSpan: number
   message?: string
@@ -69,7 +70,7 @@ export function TableEmpty({
 }) {
   return (
     <tr>
-      <td colSpan={colSpan} className={`py-12 text-center text-gray-500 ${className}`}>
+      <td colSpan={colSpan} className={cn('py-12 text-center text-gray-500', className)}>
         <p className="text-base font-medium text-gray-900">{message}</p>
         {description && <p className="mt-1 text-sm text-gray-500">{description}</p>}
       </td>
@@ -83,13 +84,13 @@ export function TableEmpty({
  */
 export function TableActionCell({
   children,
-  className = '',
+  className,
 }: {
   children: ReactNode
   className?: string
 }) {
   return (
-    <td className={`px-4 py-3 align-middle text-right text-sm font-medium ${className}`}>
+    <td className={cn('px-4 py-3 align-middle text-right text-sm font-medium', className)}>
       <div className="flex items-center justify-end space-x-2">
         {children}
       </div>
