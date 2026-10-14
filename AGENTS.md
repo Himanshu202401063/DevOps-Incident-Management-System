@@ -71,11 +71,33 @@ These come from the design documents. Breaking one silently breaks a planned tes
 
 ## Code layout
 
-Inside `backend/src/main/java/com/group2/incident/`, group by feature: `auth`, `catalog`,
+Inside `backend/src/main/java/com/group2/incident/`, group by feature first: `auth`, `catalog`,
 `incident`, `alert`, `notification`, `postmortem`. Keep SLA and escalation classes with the
-incident feature for now. Each feature holds its own controller, DTOs, service, entity, and
-repository. Controllers receive requests, services apply rules, repositories read and write. Do
-not add an interface for a service that has one implementation.
+incident feature for now. Inside each feature, one folder per layer:
+
+```
+auth/
+├── controller/   AuthController
+├── dto/          LoginRequest, LoginResponse, UserResponse (records)
+├── entity/       AppUser, Role
+├── repository/   AppUserRepository
+├── service/      AuthService
+└── security/     only where a feature needs it
+common/
+├── config/       OpenApiConfig, TimeConfig
+└── error/        ApiError, ApiExceptionHandler, NotFoundException, …
+```
+
+Controllers receive requests, services apply rules, repositories read and write. Do not add an
+interface for a service that has one implementation. Tests mirror the same folders
+(`auth/controller/AuthControllerTest`); shared test setup such as `@IntegrationTest` lives in
+`support/`, and database schema tests in `db/`.
+
+**Lombok, a small subset only.** Use `@Getter` and `@NoArgsConstructor(access = PROTECTED)` on
+entities, `@RequiredArgsConstructor` for constructor injection, and `@Slf4j` for loggers. DTOs
+are Java records, not Lombok classes. Never put `@Data`, `@EqualsAndHashCode`, `@ToString`, or
+`@Builder` on an entity: generated equality and `toString` over every field break Hibernate's
+lazy loading. Change entity state through named methods (`revokeTokens()`), not `@Setter`.
 
 REST endpoints live under `/api`. Use separate endpoints for status, assignment, and severity
 changes so their rules stay independent.
