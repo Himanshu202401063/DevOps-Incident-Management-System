@@ -30,7 +30,7 @@ The backend is the authority for status changes, timing, and permissions. Browse
 
 Inside the backend, use packages such as `auth`, `catalog`, `incident`, `alert`, `notification`, and `postmortem`. Keep SLA and escalation classes with the incident feature initially. Split a package only when its size makes that useful.
 
-Each feature can contain its controller, request/response DTOs, service, entity, and repository. Controllers receive requests; services apply rules; repositories read and write records. Do not return JPA entities directly as API responses. We do not need an interface for every service class.
+Each feature has one folder per layer: `controller/`, `dto/`, `entity/`, `repository/`, and `service/` (see `AGENTS.md`, Code layout). Controllers receive requests; services apply rules; repositories read and write records. Do not return JPA entities directly as API responses. We do not need an interface for every service class.
 
 ## 3. Main screens and API operations
 

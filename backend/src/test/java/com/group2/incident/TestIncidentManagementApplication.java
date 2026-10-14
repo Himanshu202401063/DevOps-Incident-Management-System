@@ -1,5 +1,6 @@
 package com.group2.incident;
 
+import com.group2.incident.support.TestcontainersConfiguration;
 import org.springframework.boot.SpringApplication;
 
 public class TestIncidentManagementApplication {
