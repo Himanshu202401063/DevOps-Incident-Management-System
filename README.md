@@ -19,7 +19,7 @@ Foundations and deployment are in place. Business features and login are next.
 | CI (build and test both applications), CodeQL, Dependabot | Done |
 | Deployment: Vercel, Render, Supabase, UptimeRobot | Done |
 | Migrations V1–V3 and opt-in dev seed data | Done |
-| Login and roles (FR-01) | Not started |
+| Login and roles (FR-01) | Login done; user administration next |
 | AI service skeleton | Not started |
 
 ## Live
@@ -28,7 +28,7 @@ Foundations and deployment are in place. Business features and login are next.
 | --- | --- |
 | App | https://dev-ops-incident-management-system.vercel.app |
 | Backend health | https://incident-backend-f340.onrender.com/actuator/health |
-| API docs (Swagger UI) | https://incident-backend-f340.onrender.com/swagger-ui.html (opens once login is merged) |
+| API docs (Swagger UI) | https://incident-backend-f340.onrender.com/swagger-ui.html |
 
 ## Requirements
 
@@ -144,7 +144,7 @@ Merging to `main` deploys automatically once CI passes:
 | Part | Host | Notes |
 | --- | --- | --- |
 | Frontend | Vercel | Every pull request also gets a preview link from the Vercel bot |
-| Backend | Render (Docker, free tier) | Settings come from environment variables on Render: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET`, `JAVA_TOOL_OPTIONS`. `FLYWAY_LOCATIONS` stays unset or `classpath:db/migration`, so the dev seed never loads |
+| Backend | Render (Docker, free tier) | Settings come from environment variables on Render: `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, `JWT_SECRET` (`openssl rand -base64 32`), `BOOTSTRAP_ADMIN_USERNAME` and `BOOTSTRAP_ADMIN_PASSWORD` (create the first admin while no users exist), `JAVA_TOOL_OPTIONS`. `FLYWAY_LOCATIONS` stays unset or `classpath:db/migration`, so the dev seed never loads |
 | Database | Supabase (PostgreSQL) | Reached through the session pooler; tables in the `incident` schema |
 | Uptime | UptimeRobot | Pings `/actuator/health` every 10 minutes, which also keeps Render's free tier awake |
 
