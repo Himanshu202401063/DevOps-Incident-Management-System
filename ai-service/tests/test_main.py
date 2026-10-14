@@ -3,12 +3,13 @@ Tests for ai-service Sprint 1 skeleton.
 
 Validates:
   - GET  /health returns 200 with status ok
-  - POST /suggest returns 200 with the full AI contract shape
-  - Contract guarantees:
-      - is_ai_generated == True (FR-18.2)
-      - cites specific past incident IDs (FR-18.2)
-      - unique suggestion IDs for Accept/Reject tracking (FR-19)
-  - 422 Unprocessable Entity on invalid request payloads
+  - POST /suggest returns 200 with the exact AI contract shape:
+      - aiGenerated == True (FR-18.2)
+      - suggestions contains step and basedOn
+      - basedOn uses IDs strictly from pastIncidents (no hardcoded INC-12/INC-44)
+      - no status or sug-001 ids in response
+  - 422 validation on empty or exceeding min/max length for title and description
+  - 422 on invalid/missing request payload
 """
 
 from fastapi.testclient import TestClient
@@ -37,58 +38,177 @@ def test_health_payload():
 # Suggest endpoint tests (Contract shape compliance)
 # ---------------------------------------------------------------------------
 
-def test_suggest_returns_200():
+def test_suggest_returns_200_and_exact_contract_shape():
+    """Ensure response satisfies the AI contract in docs/plans/2026-10-08-sprint-1-implementation.md."""
     payload = {
-        "title": "Database connection pool timeout",
-        "description": "504 Gateway Timeout on checkout API under peak traffic",
-        "service": "checkout-service",
-    }
-    response = client.post("/suggest", json=payload)
-    assert response.status_code == 200
-
-
-def test_suggest_returns_ai_contract_shape():
-    """Ensure response satisfies the AI contract requirements (FR-18.1, FR-18.2, FR-19)."""
-    payload = {
-        "title": "Payment gateway failure",
-        "description": "Stuck queries blocking new transactions",
+        "incident": {
+            "title": "Payment gateway timeout",
+            "description": "504 Gateway Timeout on checkout API under peak traffic",
+            "service": "Payments",
+            "severity": "SEV2",
+        },
+        "pastIncidents": [
+            {
+                "id": 12,
+                "title": "Database connection pool timeout",
+                "description": "Connection pool exhausted on checkout workers",
+                "fix": "Increased HikariCP max pool size",
+            }
+        ],
     }
     response = client.post("/suggest", json=payload)
     assert response.status_code == 200
     data = response.json()
 
-    # FR-18.2: Must be explicitly labelled AI-generated
-    assert data["is_ai_generated"] is True
-    assert 0.0 <= data["confidence"] <= 1.0
-
-    # Must contain similar incidents
-    assert isinstance(data["similar_incidents"], list)
-    assert len(data["similar_incidents"]) > 0
-    first_incident = data["similar_incidents"][0]
-    assert "incident_id" in first_incident
-    assert "title" in first_incident
-    assert "similarity_score" in first_incident
-    assert "resolution_summary" in first_incident
-
-    # Must contain actionable investigation suggestions with IDs (FR-19) and citations (FR-18.2)
+    # Contract: { "aiGenerated": true, "suggestions": [ { "step": "...", "basedOn": [12] } ] }
+    assert data["aiGenerated"] is True
     assert isinstance(data["suggestions"], list)
     assert len(data["suggestions"]) > 0
-    first_suggestion = data["suggestions"][0]
-    assert "id" in first_suggestion
-    assert "action" in first_suggestion
-    assert "cited_incident_ids" in first_suggestion
-    assert len(first_suggestion["cited_incident_ids"]) > 0
-    assert "reasoning" in first_suggestion
-    assert first_suggestion["status"] == "pending"
 
+    first_suggestion = data["suggestions"][0]
+    assert first_suggestion["step"] == "Check the payment gateway timeout"
+    assert first_suggestion["basedOn"] == [12]
+
+    # Rule: Remove status and the sug-001 ids from the response
+    assert "status" not in first_suggestion
+    assert "id" not in first_suggestion
+    assert "similar_incidents" not in data
+    assert "confidence" not in data
+
+
+def test_suggest_based_on_uses_provided_past_incident_ids():
+    """Ensure basedOn strictly uses numeric IDs from pastIncidents."""
+    payload = {
+        "incident": {
+            "title": "Orders failing with 500 internal server error",
+            "description": "Downstream inventory service unreachable",
+            "service": "Orders",
+            "severity": "SEV1",
+        },
+        "pastIncidents": [
+            {
+                "id": 88,
+                "title": "Inventory network partition",
+                "description": "Circuit breaker did not trip",
+                "fix": "Configured fallback circuit breaker",
+            },
+            {
+                "id": 99,
+                "title": "Deadlock in orders database",
+                "description": "Concurrent lock contention on inventory table",
+                "fix": "Reordered table updates in transaction",
+            },
+        ],
+    }
+    response = client.post("/suggest", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+
+    # Check that basedOn uses IDs from request pastIncidents
+    assert data["suggestions"][0]["basedOn"] == [88]
+    assert data["suggestions"][1]["basedOn"] == [88, 99]
+
+    # Ensure no old hardcoded strings appear
+    all_based_on = [
+        item for s in data["suggestions"] for item in s["basedOn"]
+    ]
+    assert "INC-12" not in all_based_on
+    assert "INC-44" not in all_based_on
+
+
+def test_suggest_with_empty_past_incidents():
+    """Handles empty pastIncidents gracefully returning suggestions with empty citations."""
+    payload = {
+        "incident": {
+            "title": "New unknown anomaly",
+            "description": "Service experiencing intermittent CPU spikes without known precedent",
+            "service": "Analytics",
+            "severity": "SEV3",
+        },
+        "pastIncidents": [],
+    }
+    response = client.post("/suggest", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert data["aiGenerated"] is True
+    assert len(data["suggestions"]) > 0
+    assert data["suggestions"][0]["basedOn"] == []
+
+
+# ---------------------------------------------------------------------------
+# Validation tests (422 Unprocessable Entity)
+# ---------------------------------------------------------------------------
 
 def test_suggest_validation_error_on_missing_body():
-    """Missing required fields must return 422, never 500."""
+    """Missing request body returns 422."""
     response = client.post("/suggest", json={})
     assert response.status_code == 422
 
 
-def test_suggest_validation_error_on_missing_description():
-    """Missing description field must return 422."""
-    response = client.post("/suggest", json={"title": "Only title provided"})
+def test_suggest_validation_error_on_empty_title():
+    """Empty title violating min_length=1 returns 422."""
+    payload = {
+        "incident": {
+            "title": "",
+            "description": "Some description",
+            "service": "Payments",
+            "severity": "SEV2",
+        }
+    }
+    response = client.post("/suggest", json=payload)
+    assert response.status_code == 422
+
+
+def test_suggest_validation_error_on_title_too_long():
+    """Title exceeding max_length=200 returns 422."""
+    payload = {
+        "incident": {
+            "title": "x" * 201,
+            "description": "Some description",
+            "service": "Payments",
+            "severity": "SEV2",
+        }
+    }
+    response = client.post("/suggest", json=payload)
+    assert response.status_code == 422
+
+
+def test_suggest_validation_error_on_empty_description():
+    """Empty description violating min_length=1 returns 422."""
+    payload = {
+        "incident": {
+            "title": "Valid title",
+            "description": "",
+            "service": "Payments",
+            "severity": "SEV2",
+        }
+    }
+    response = client.post("/suggest", json=payload)
+    assert response.status_code == 422
+
+
+def test_suggest_validation_error_on_description_too_long():
+    """Description exceeding max_length=5000 returns 422."""
+    payload = {
+        "incident": {
+            "title": "Valid title",
+            "description": "x" * 5001,
+            "service": "Payments",
+            "severity": "SEV2",
+        }
+    }
+    response = client.post("/suggest", json=payload)
+    assert response.status_code == 422
+
+
+def test_suggest_validation_error_on_missing_service():
+    """Missing service field returns 422."""
+    payload = {
+        "incident": {
+            "title": "Valid title",
+            "description": "Valid description",
+            "severity": "SEV2",
+        }
+    }
+    response = client.post("/suggest", json=payload)
     assert response.status_code == 422

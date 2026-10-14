@@ -23,7 +23,6 @@ __pycache__/
 *$py.class
 .pytest_cache/
 .venv/
-env/
 venv/
 
 # Editors and OS

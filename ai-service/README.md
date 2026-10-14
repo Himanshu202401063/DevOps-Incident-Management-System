@@ -19,48 +19,43 @@
 
 ## 2. AI Contract & Requirements Mapping
 
-The response from `POST /suggest` conforms strictly to the project rules:
+The response from `POST /suggest` conforms strictly to the AI contract in `docs/plans/2026-10-08-sprint-1-implementation.md`:
 
-- **AI only suggests, never automates (DR-10.2 / FR-19.3):** Returns advisory actions only; does not mutate incident status or SLA.
-- **Labelled as AI-generated (FR-18.2):** `is_ai_generated: true` explicitly included in root payload.
-- **Cites past incidents (FR-18.2):** Each suggestion contains `cited_incident_ids: ["INC-12", ...]` pointing to concrete incidents.
-- **Supports Accept / Reject recording (FR-19):** Each suggestion has a stable `id` (e.g., `"sug-001"`) and `status: "pending"` so the frontend and backend can record decisions.
-- **Fail-open fallback (FR-18.4 / NFR-12):** When AI service is down or unconfigured (`AI_SERVICE_URL` unset), backend carries on smoothly.
+- **AI only suggests, never automates (DR-10.2):** Returns advisory investigation actions only; does not mutate incident status or SLA.
+- **Labelled as AI-generated (FR-18.2):** `aiGenerated: true` explicitly included in root payload.
+- **Cites past incidents (FR-18.2):** Each suggestion contains `basedOn: [12]` referencing numeric IDs supplied in `pastIncidents`.
+- **Backend records decisions:** The AI service only suggests investigation steps; suggestion IDs and status are not returned as the backend records Accept/Reject choices.
 
 ### Contract Schema Example (`POST /suggest`)
 
+**Request:**
 ```json
 {
-  "is_ai_generated": true,
-  "confidence": 0.87,
-  "similar_incidents": [
+  "incident": {
+    "title": "Payment gateway timeout",
+    "description": "504 Gateway Timeout on checkout API under peak traffic",
+    "service": "Payments",
+    "severity": "SEV2"
+  },
+  "pastIncidents": [
     {
-      "incident_id": "INC-12",
+      "id": 12,
       "title": "Database connection pool timeout on checkout service",
-      "similarity_score": 0.89,
-      "resolution_summary": "Increased HikariCP max pool size from 20 to 50 and restarted checkout worker pods."
-    },
-    {
-      "incident_id": "INC-44",
-      "title": "High latency on payment gateway during traffic surge",
-      "similarity_score": 0.82,
-      "resolution_summary": "Scaled payment replica pods and restarted stale PostgreSQL idle connections."
+      "description": "Increased traffic exhausted database pool workers",
+      "fix": "Increased HikariCP max pool size from 20 to 50 and restarted checkout worker pods."
     }
-  ],
+  ]
+}
+```
+
+**Response (200 OK):**
+```json
+{
+  "aiGenerated": true,
   "suggestions": [
     {
-      "id": "sug-001",
-      "action": "Check database connection pool metrics (active vs idle) on the target database.",
-      "cited_incident_ids": ["INC-12"],
-      "reasoning": "Identical symptom seen in INC-12 where HikariCP connection pool was completely exhausted.",
-      "status": "pending"
-    },
-    {
-      "id": "sug-002",
-      "action": "Restart stale worker processes and scale service replicas to shed immediate connection backpressure.",
-      "cited_incident_ids": ["INC-12", "INC-44"],
-      "reasoning": "Both INC-12 and INC-44 resolved gateway 504 timeouts by recycling stuck workers while pools recovered.",
-      "status": "pending"
+      "step": "Check the payment gateway timeout",
+      "basedOn": [12]
     }
   ]
 }
@@ -99,8 +94,8 @@ ollama run llama3.2:1b
 
 ### Quick Start
 ```powershell
-# Install dependencies
-pip install -r requirements.txt
+# Install dependencies (use requirements-dev.txt to include pytest & httpx)
+pip install -r requirements-dev.txt
 
 # Start FastAPI server
 python -m uvicorn main:app --reload --port 8000

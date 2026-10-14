@@ -41,7 +41,7 @@ services:
       context: ./ai-service
     container_name: incident-ai
     ports:
-      - "${AI_PORT:-8000}:8000"
+      - "127.0.0.1:8000:8000"
 
 volumes:
   incident-db-data:
