@@ -38,5 +38,13 @@ services:
     ports:
       - "${APP_PORT:-8080}:8080"
 
+  ai-service:
+    profiles: ["ai"]
+    build:
+      context: ./ai-service
+    container_name: incident-ai
+    ports:
+      - "127.0.0.1:${AI_PORT:-8000}:8000"
+
 volumes:
   incident-db-data:
