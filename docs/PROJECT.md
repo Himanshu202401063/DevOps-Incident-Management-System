@@ -111,5 +111,6 @@ Selected means a design choice adopted in this pack, not completed stakeholder v
 | D24 | Messaging and cache | Selected: RabbitMQ through a transactional outbox, added when the first async consumer lands; Redis optional, for live updates (HLD v2) | Shane | Recorded 2026-10-11 |
 | D25 | Where is the app hosted? | Selected: frontend on Vercel, backend on Render (Docker), PostgreSQL on Supabase, UptimeRobot pinging `/actuator/health` to keep the backend awake | Shane | Recorded 2026-10-11 |
 | D26 | Which database schema holds our tables? | Selected: `incident`, managed by Flyway. Supabase keeps its own objects in `public`, and its Data API only exposes `public` | Shane | Recorded 2026-10-12 |
+| D27 | Is development seed data loaded by default? | Selected: no. Flyway reads only `classpath:db/migration` unless `FLYWAY_LOCATIONS` also names `classpath:db/devdata`, so production never receives the dev users (Sprint 1 plan, Database) | Shlok | Recorded 2026-10-12 |
 
 Before implementing an affected rule, its owner should record the team's decision, actual date, and Slack or issue reference. Optional features need not block EPIC 1. If a suggested review date does not fit the sprint, change it explicitly rather than presenting the review as completed.
