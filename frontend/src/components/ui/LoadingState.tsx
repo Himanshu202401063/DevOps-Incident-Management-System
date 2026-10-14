@@ -1,3 +1,5 @@
+import { cn } from './cn'
+
 export interface LoadingStateProps {
   message?: string
   fullScreen?: boolean
@@ -7,14 +9,14 @@ export interface LoadingStateProps {
 export function LoadingState({
   message = 'Loading...',
   fullScreen = false,
-  className = '',
+  className,
 }: LoadingStateProps) {
   const containerClass = fullScreen
     ? 'fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/80 backdrop-blur-xs'
     : 'flex flex-col items-center justify-center py-12'
 
   return (
-    <div role="status" aria-live="polite" className={`${containerClass} ${className}`}>
+    <div role="status" aria-live="polite" className={cn(containerClass, className)}>
       <svg
         className="h-8 w-8 animate-spin text-blue-600"
         xmlns="http://www.w3.org/2000/svg"
@@ -37,16 +39,16 @@ export function LoadingState({
         />
       </svg>
       {message && <p className="mt-3 text-sm font-medium text-gray-600">{message}</p>}
-      <span className="sr-only">Loading</span>
+      {!message && <span className="sr-only">Loading</span>}
     </div>
   )
 }
 
-export function Skeleton({ className = '' }: { className?: string }) {
+export function Skeleton({ className }: { className?: string }) {
   return (
     <div
       aria-hidden="true"
-      className={`animate-pulse rounded bg-gray-200 dark:bg-gray-700 ${className}`}
+      className={cn('animate-pulse rounded bg-gray-200', className)}
     />
   )
 }

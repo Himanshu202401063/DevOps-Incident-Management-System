@@ -5,6 +5,7 @@ import {
   FormField,
   Input,
   Select,
+  Textarea,
   RoleBadge,
   SeverityBadge,
   StatusBadge,
@@ -80,6 +81,45 @@ describe('FormField and Input/Select components', () => {
     expect(errorMsg).toHaveTextContent('Username is required')
     const input = screen.getByRole('textbox')
     expect(input).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('links the label, error, and required state to the control without extra props', () => {
+    render(
+      <FormField id="title" label="Title" error="Title is required" required>
+        <Input />
+      </FormField>
+    )
+    const input = screen.getByLabelText(/title/i)
+    expect(input).toHaveAttribute('aria-invalid', 'true')
+    expect(input).toHaveAttribute('aria-required', 'true')
+    expect(input).toHaveAccessibleDescription('Title is required')
+  })
+
+  it('describes the control with the helper text when there is no error', () => {
+    render(
+      <FormField id="description" label="Description" helperText="Shown on the incident page">
+        <Textarea />
+      </FormField>
+    )
+    const textarea = screen.getByLabelText(/description/i)
+    expect(textarea).toHaveAttribute('aria-invalid', 'false')
+    expect(textarea).toHaveAccessibleDescription('Shown on the incident page')
+  })
+})
+
+describe('Class overrides', () => {
+  it('lets a className replace a default class instead of competing with it', () => {
+    render(<Button className="px-2">Small</Button>)
+    const button = screen.getByRole('button', { name: /small/i })
+    expect(button).toHaveClass('px-2')
+    expect(button).not.toHaveClass('px-3.5')
+  })
+
+  it('draws SEV1 bold, not with the base medium weight', () => {
+    render(<SeverityBadge severity="SEV1" />)
+    const badge = screen.getByText('SEV1')
+    expect(badge).toHaveClass('font-bold')
+    expect(badge).not.toHaveClass('font-medium')
   })
 })
 

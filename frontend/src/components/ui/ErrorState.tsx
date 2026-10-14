@@ -1,4 +1,5 @@
 import { Button } from './Button'
+import { cn } from './cn'
 
 export interface ErrorStateProps {
   title?: string
@@ -11,12 +12,12 @@ export function ErrorState({
   title = 'Something went wrong',
   message,
   onRetry,
-  className = '',
+  className,
 }: ErrorStateProps) {
   return (
     <div
       role="alert"
-      className={`rounded-lg border border-red-200 bg-red-50 p-6 text-center ${className}`}
+      className={cn('rounded-lg border border-red-200 bg-red-50 p-6 text-center', className)}
     >
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
         <svg
