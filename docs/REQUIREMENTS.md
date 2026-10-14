@@ -3,7 +3,7 @@
 ## How to use this file
 
 This is the **current requirements baseline**. [`requirements/Group-2.pdf`](requirements/Group-2.pdf) is
-the version we submitted; where the two differ, this file wins (D29).
+the version we submitted; where the two differ, this file wins (D30).
 
 - **IDs never change.** A requirement that is merged or moved keeps its ID and says where it went,
   so links from `TRACEABILITY.csv`, the user stories, and the plans keep working. New requirements
@@ -130,7 +130,7 @@ the version we submitted; where the two differ, this file wins (D29).
 - **FR-21.1** Customer-facing updates shall be kept separate from internal incident notes.
 - **FR-21.2** Only authorized users shall approve and publish external updates.
 
-### FR-22 Service health monitoring · Must (D28)
+### FR-22 Service health monitoring · Must (D29)
 - **FR-22.1** The system shall check each service's configured health endpoint on a schedule and raise an alert after a configured number of consecutive failures.
 - **FR-22.2** When the service recovers, the system shall update the matching alert and add a timeline entry.
 - **FR-22.3** Recovery shall not resolve an incident automatically; a person resolves it (DR-11.1).
@@ -187,7 +187,7 @@ Targets marked *proposed* are starting points, to be confirmed after the first l
 - **NFR-11.2** A conflicting update shall be rejected with a message rather than silently overwrite an accepted change.
 
 ### NFR-12 AI failure handling
-- **NFR-12.1** AI models shall be self-hosted through Ollama, on a team machine or our own container, with a configurable timeout. Incident data shall not be sent to external AI providers (D27).
+- **NFR-12.1** AI models shall be self-hosted through Ollama, on a team machine or our own container, with a configurable timeout. Incident data shall not be sent to external AI providers (D28).
 - **NFR-12.2** Invalid AI output or AI failure shall not block core incident functions. Structured output shall be validated before use.
 
 ### NFR-13 Testing
@@ -274,13 +274,13 @@ SEV1 critical service or business impact · SEV2 high impact needing urgent atte
 | FR-09.3 | **New:** evidence links | Survey: resolvers look at logs first (epics §4.2) |
 | FR-10.3 | Merged into FR-11.3 | Same as action items |
 | FR-11.3 | Covers corrective and preventive actions | Absorbs FR-10.3 |
-| FR-18.1 | "Local" → "self-hosted" | D27 |
+| FR-18.1 | "Local" → "self-hosted" | D28 |
 | FR-20, FR-21 | Deferred → Should and Could | Match the submitted PDF and user stories US-19, US-20 |
-| FR-22 | **Should → Must**; recovery never auto-resolves | The project brief lists "monitor service health" (D28) |
+| FR-22 | **Should → Must**; recovery never auto-resolves | The project brief lists "monitor service health" (D29) |
 | NFR-01, NFR-03 | Measurable, proposed targets | "Shall be measured" can't pass or fail |
 | NFR-03.2, 06.3, 09.2, 13.2, 13.3 | Moved to TESTING_AND_WORKFLOW.md | They describe how we test, not the system |
 | NFR-08.3, NFR-10.2 | Moved to Out of scope | They were scope notes |
-| NFR-12.1 | Self-hosted through Ollama; no external AI providers | D27 |
+| NFR-12.1 | Self-hosted through Ollama; no external AI providers | D28 |
 | NFR-13.1 | Merged into DR-10.2 | Same rule |
 | DR-04 | Merged into FR-16 | Restated FR-16 |
 | DR-06.1 | Merged into FR-11.1 | Restated FR-11.1 |
