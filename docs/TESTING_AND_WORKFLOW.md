@@ -39,6 +39,18 @@ Use **Planned - not run**, **Optional - not selected**, **Deferred**, or **Scope
 
 CI should build the backend and frontend and run the tests already configured. Add database integration tests when persistence behavior is introduced. Run targeted mutation tests at a planned checkpoint or on demand. Do not require a real local model in CI.
 
+## Quality checks moved out of the NFRs
+
+These were NFR sub-requirements, but they describe how we test rather than the system itself.
+
+| Was | Check |
+| --- | --- |
+| NFR-03.2 | Load-test concurrent users, stored incident volume, and alert rate on the deployed setup (k6) against NFR-01 and NFR-03 |
+| NFR-06.3 | Review incident creation and acknowledgement with users during testing; record what they found |
+| NFR-09.2 | Record the Chrome and Firefox versions each manual run used |
+| NFR-13.2 | Automated tests cover the main paths and important failures; AI tests use fixed sample responses in CI |
+| NFR-13.3 | Run PIT mutation testing on selected core rules; no target score is claimed |
+
 ## Course work still required
 
 The design pack supports the project but does not replace the assignment evidence.

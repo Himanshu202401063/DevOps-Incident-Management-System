@@ -18,6 +18,7 @@ Record these in the `PROJECT.md` decision log before coding.
 | Creating an incident | Incident, copied SLA targets, timeline entry, and audit entry are saved in **one transaction** |
 | Service criticality | `LOW`, `MEDIUM`, `HIGH`, `CRITICAL` |
 | Default response targets | SEV1 15 min, SEV2 60 min, SEV3 240 min, SEV4 1440 min. Resolution targets have no default |
+| Dev seed | Opt-in. Flyway reads only `db/migration` unless `FLYWAY_LOCATIONS` adds `db/devdata` (D27) |
 | Who manages services and users | Admin only |
 
 **Not in Sprint 1:** on-call, alerts, escalation, notifications, status changes, RabbitMQ, Redis, AI.
@@ -161,11 +162,12 @@ Flyway migrations in `backend/src/main/resources/db/migration`. New migrations a
 
 | Migration | Tables |
 | --- | --- |
-| `V1__users_and_audit.sql` | `app_user` (id, username unique, display_name, password_hash, role, enabled, token_version, created_at) · `audit_entry` (id, actor_id, action, item_type, item_id, details, recorded_at) |
+| `V1__users_and_audit.sql` | `app_user` (id, username unique regardless of case, display_name, password_hash varchar(255), role, enabled, token_version, created_at) · `audit_entry` (id, actor_id nullable for system actions, action, item_type, item_id, details, recorded_at) |
 | `V2__catalog.sql` | `service` (id, name unique, description, owner_id, criticality, created_at, updated_at) · `service_sla_target` (service_id, severity, response_minutes, resolution_minutes; PK service_id + severity; resolution ≥ response) |
-| `V3__incidents_and_timeline.sql` | `incident` (id, title, description, service_id, severity, status, reporter_id, assignee_id nullable, created_at, response_target_minutes, resolution_target_minutes, version) · `timeline_entry` (id, incident_id, actor_id, event_type, details, recorded_at, corrects_entry_id nullable) |
+| `V3__incidents_and_timeline.sql` | `incident` (id, title, description, service_id, severity, status, reporter_id nullable for system-created incidents, assignee_id nullable, created_at, response_target_minutes, resolution_target_minutes, version) · `timeline_entry` (id, incident_id, actor_id nullable for system actions, event_type, details, recorded_at, corrects_entry_id nullable, same incident only) |
 
-- `audit_entry` and `timeline_entry` get a `BEFORE UPDATE OR DELETE` trigger that raises an error, so they are append-only.
+- `audit_entry` and `timeline_entry` get `BEFORE UPDATE OR DELETE` and `BEFORE TRUNCATE` triggers that raise an error, so they are append-only.
+- `action`, `item_type`, and `event_type` must be upper-case codes such as `USER_CREATED`; the Java enums own the values.
 - The table is `app_user` because `user` is reserved in PostgreSQL.
 - Tables live in the `incident` schema (D26). Use unqualified names in migrations.
 - Enums are `varchar` columns with a `CHECK` constraint. Timestamps are `timestamptz`.
@@ -173,9 +175,12 @@ Flyway migrations in `backend/src/main/resources/db/migration`. New migrations a
 **Dev seed** `db/devdata/R__dev_seed.sql` (idempotent, `ON CONFLICT DO NOTHING`): users `admin`,
 `engineer`, `viewer`, all with password `DevPassw0rd!`, hash
 `{bcrypt}$2a$10$VIfFAxI6UFgBeWMdFEvAp.16koHo8wb8LRuqky0e47iWLefM5Huwm`; and service `Payments`
-with the targets above. Enable with
-`spring.flyway.locations=${FLYWAY_LOCATIONS:classpath:db/migration,classpath:db/devdata}`;
-production sets `FLYWAY_LOCATIONS=classpath:db/migration`.
+with the targets above. The seed is opt-in (D27):
+`spring.flyway.locations=${FLYWAY_LOCATIONS:classpath:db/migration}`, so production and the test
+suite run without it. Enable it locally with
+`FLYWAY_LOCATIONS=classpath:db/migration,classpath:db/devdata`. Flyway ignores a missing repeatable
+migration (`spring.flyway.ignore-migration-patterns=*:future,repeatable:missing`), so a database that
+loaded the seed still starts without it; the seed's rows stay.
 
 ---
 
