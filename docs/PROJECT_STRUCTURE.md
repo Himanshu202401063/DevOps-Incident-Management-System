@@ -2,35 +2,31 @@
 
 ## 1. High-level design: how the parts fit together
 
-React provides the screens. Spring Boot handles permissions and incident rules. PostgreSQL stores the records. A scheduled task inside Spring Boot checks escalation deadlines. Start with one backend instance.
-
 ```mermaid
 flowchart TD
-  Browser[React screens] --> Backend[Spring Boot API and scheduled task]
-  Alerts[Alert source or test script] --> Backend
-  Backend --> Database[(PostgreSQL)]
-  Backend -. Optional suggestions .-> AI[FastAPI and local Ollama]
+  Browser[Settle UI: React on Vercel] -->|/api with JWT| Backend[Spring Boot backend on Render]
+  Tools[Monitoring tools and Grafana alert rules] -->|/webhooks/alerts| Backend
+  CI[CI pipelines] -->|/webhooks/deploys| Backend
+  Probes[Probe agents in 2-3 regions] -->|check results| Backend
+  Jobs[Scheduled jobs] -->|heartbeat pings| Backend
+  Backend --> Database[(PostgreSQL on Supabase)]
+  Backend -->|outbox| Queue[RabbitMQ workers: notify, escalate, AI jobs]
+  Backend -->|queries with a server-side token| Grafana[Grafana Cloud: Prometheus and Loki]
+  Backend -. optional .-> AI[ai-service: AI features, AI SRE, MCP server]
+  AI -->|REST API with the caller's token| Backend
+  Shop[Demo shop with fault switches] -->|logs and metrics| Grafana
+  Shop -->|deploy events| CI
 ```
 
-The backend is the authority for status changes, timing, and permissions. Browser validation helps the user, but the backend checks every request again. The optional AI service receives selected context from the backend and does not write to the database.
+The backend is the authority for status changes, timing, and permissions. Browser validation helps the user, but the backend checks every request again. The AI service never writes to the database: its tools call the same REST API as a person, with that person's permissions. The parts arrive sprint by sprint (see [sprint-plan.md](sprint-plan.md)); the first version was one backend instance, one database, and a scheduled escalation task.
 
-## 2. Repository layout
+## 2. Code layout
 
-| Path | Contents |
-| --- | --- |
-| `backend/` | Spring Boot application and Java tests |
-| `backend/src/main/resources/db/migration/` | Flyway database migrations |
-| `frontend/` | React screens, components, and frontend tests |
-| `frontend/vercel.json` | Vercel routing: `/api` to the Render backend, other paths to the app |
-| `docs/` | These design documents, actual elicitation evidence, and sprint notes |
-| `.github/workflows/` | Build and test workflow |
-| `compose.yaml` | Local database and application setup |
-| `.env.example` | Example settings without real credentials |
-| `ai-service/` | Python AI service (FastAPI, Ollama), from Sprint 1; see `docs/plans/ai-ml-roadmap.md` |
-
-Inside the backend, use packages such as `auth`, `catalog`, `incident`, `alert`, `notification`, and `postmortem`. Keep SLA and escalation classes with the incident feature initially. Split a package only when its size makes that useful.
-
-Each feature has one folder per layer: `controller/`, `dto/`, `entity/`, `repository/`, and `service/` (see `AGENTS.md`, Code layout). Controllers receive requests; services apply rules; repositories read and write records. Do not return JPA entities directly as API responses. We do not need an interface for every service class.
+Folders are listed in the [README](../README.md#layout). Inside the backend, each feature (`auth`,
+`catalog`, `incident`, `alert`, `notification`, `postmortem`) has one folder per layer. See
+`AGENTS.md`, Code layout. Controllers receive requests, services apply rules, and repositories read
+and write records. Do not return JPA entities directly as API responses, and don't add an interface
+for every service class.
 
 ## 3. Main screens and API operations
 

@@ -1,14 +1,20 @@
 # Incident Management System
 
-IT314 course project, Group 2. A web application for reporting an incident, assigning a
-responder, tracking the response, and recording the resolution.
+IT314 course project, Group 2 (working name **Settle**). A reliability platform for software
+teams:
+- incident response in the style of incident.io;
+- monitoring in the style of Better Stack;
 
-The design documents in [docs/](docs/) are the specification. Read
-[docs/PROJECT.md](docs/PROJECT.md) first.
+built sprint by sprint.
+
+The documents in [docs/](docs/) are the specification. Read [docs/PROJECT.md](docs/PROJECT.md)
+first. Every planned feature is in [docs/FEATURES.md](docs/FEATURES.md), and the AI features in
+the [AI/ML roadmap](docs/plans/ai-ml-roadmap.md).
 
 ## Status
 
-Foundations and deployment are in place. Business features and login are next.
+Foundations, deployment, and login are in place. The service catalog, incidents, and the
+frontend pages are next.
 
 | Part | State |
 | --- | --- |
@@ -19,8 +25,11 @@ Foundations and deployment are in place. Business features and login are next.
 | CI (build and test both applications), CodeQL, Dependabot | Done |
 | Deployment: Vercel, Render, Supabase, UptimeRobot | Done |
 | Migrations V1–V3 and opt-in dev seed data | Done |
-| Login and roles (FR-01) | Login done; user administration next |
-| AI service skeleton | Not started |
+| Login and roles (FR-01) | Login API done; user administration next |
+| Frontend: shared UI components and the API client | Done |
+| Frontend pages (login, services, incidents, users) | Not started |
+| Service catalog and incidents API | In progress |
+| AI service skeleton (FastAPI, `/health`, stub `/suggest`) | Done |
 
 ## Live
 
@@ -122,20 +131,13 @@ cd frontend && npm run cypress:run    # end-to-end, needs both servers running
 | `compose.yaml` | Local database and packaged application |
 | `.env.example` | Example settings, no real credentials |
 
-`ai-service/` (Python, FastAPI, Ollama) comes from the AI/ML track in Sprint 1. It runs locally
-only; see the [AI/ML roadmap](docs/plans/ai-ml-roadmap.md).
+`ai-service/` (Python, FastAPI, Ollama) runs locally only; see the
+[AI/ML roadmap](docs/plans/ai-ml-roadmap.md).
 
 ## Team and plans
 
-| Role | Members |
-| --- | --- |
-| Backend | Shane, Shlok, Utsav B |
-| Frontend | Bhakti, Manan, Dhruva, Het |
-| AI/ML | Himanshu, Shlok, Bhakti |
-| Testing | Utsav D, Manush, Dhruva, Het |
-| DevOps and Reviewer | Shane |
-
-Each member's work is in the [Sprint 1 implementation plan](docs/plans/2026-10-08-sprint-1-implementation.md).
+The team and their tracks are in [docs/PROJECT.md](docs/PROJECT.md#team). Each sprint's work is in
+[docs/plans/](docs/plans/).
 
 ## Deployment
 
