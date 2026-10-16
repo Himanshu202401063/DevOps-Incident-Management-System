@@ -140,7 +140,7 @@ export function Features() {
   const [done, setDone] = useState<Record<string, boolean>>({ x2: true })
 
   return (
-    <section id="features" className="mx-auto max-w-[1280px] scroll-mt-24 px-4 pt-6 pb-28 sm:px-8">
+    <section id="features" className="mx-auto max-w-(--page-max) scroll-mt-24 px-4 pt-6 pb-28 sm:px-8">
       <h2 className="mb-12 max-w-[760px] text-[clamp(48px,5.8vw,84px)] leading-[0.9] font-[750] tracking-[-0.01em]" style={{ fontStretch: '62%' }}>
         Quiet until it matters. Then very clear.
       </h2>
@@ -173,7 +173,7 @@ export function Features() {
           </FeatureCard>
 
           <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-4">
-            <FeatureCard className="flex-1">
+            <FeatureCard className="flex-auto">
               <div className="flex flex-col gap-1.5">
                 <h3 className={heading} style={condensed}>
                   On-call and escalation
@@ -205,7 +205,7 @@ export function Features() {
               </div>
             </FeatureCard>
 
-            <FeatureCard className="flex-1">
+            <FeatureCard className="flex-auto">
               <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[18px]">
                 <div className="flex flex-col gap-1.5">
                   <h3 className={heading} style={condensed}>

@@ -17,7 +17,7 @@ export function HowItWorks() {
   const shown = inView || !!reduceMotion
 
   return (
-    <section id="how" className="mx-auto max-w-[1280px] scroll-mt-24 px-4 pt-28 pb-24 sm:px-8">
+    <section id="how" className="mx-auto max-w-(--page-max) scroll-mt-24 px-4 pt-28 pb-24 sm:px-8">
       <div className="mb-16 flex flex-wrap items-end justify-between gap-8">
         <h2 className="max-w-[760px] text-[clamp(48px,5.8vw,84px)] leading-[0.9] font-[750] tracking-[-0.01em]" style={{ fontStretch: '62%' }}>
           From the first alert to the last action item, in order.

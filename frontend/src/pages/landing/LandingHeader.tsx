@@ -24,11 +24,11 @@ export function LandingHeader() {
   }, [])
 
   return (
-    <div className="pointer-events-none fixed top-3.5 right-0 left-0 z-50 flex justify-center px-4">
+    <div className="pointer-events-none fixed top-3.5 right-0 left-0 z-50 flex justify-center px-4 sm:px-8">
       <header
         className={cn(
           'pointer-events-auto flex h-[54px] max-w-full items-center gap-[18px] rounded-full border border-foreground/12 bg-background/60 pr-2 pl-[18px] backdrop-blur-[18px] backdrop-saturate-[1.4] transition-[width,box-shadow] duration-[420ms] ease-[cubic-bezier(0.2,0.8,0.2,1)]',
-          scrolled ? 'w-[860px] shadow-[0_12px_40px_-12px_oklch(0.2_0.008_60/0.35)]' : 'w-[1180px]',
+          scrolled ? 'w-[860px] shadow-[0_12px_40px_-12px_oklch(0.2_0.008_60/0.35)]' : 'w-[calc(var(--page-max)-4rem)]',
         )}
       >
         <a href="#top" aria-label="Settle, back to top" className="text-foreground hover:no-underline">

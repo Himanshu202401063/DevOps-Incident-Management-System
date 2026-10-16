@@ -19,7 +19,7 @@ export function StatusPreview() {
         aria-hidden="true"
         className="absolute -top-[120px] -right-[200px] -z-10 size-[760px] rounded-full [background:radial-gradient(circle,color-mix(in_oklch,var(--primary)_22%,transparent),transparent_65%)]"
       />
-      <div className="mx-auto flex max-w-[1280px] flex-wrap items-start gap-14 px-4 py-28 sm:px-8">
+      <div className="mx-auto flex max-w-(--page-max) flex-wrap items-start gap-14 px-4 py-28 sm:px-8">
         <div className="flex min-w-0 flex-[1_1_340px] flex-col gap-[18px]">
           <h2 className="text-[clamp(48px,5.8vw,84px)] leading-[0.9] font-[750] tracking-[-0.01em]" style={{ fontStretch: '62%' }}>
             Tell customers before they ask.

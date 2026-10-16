@@ -38,7 +38,7 @@ export function LandingFooter() {
 
   return (
     <footer className="border-t bg-background">
-      <div className="mx-auto grid max-w-[1280px] grid-cols-[minmax(min(100%,300px),2fr)_repeat(auto-fit,minmax(160px,1fr))] gap-10 px-4 pt-[72px] sm:px-8">
+      <div className="mx-auto grid max-w-(--page-max) grid-cols-[minmax(min(100%,300px),2fr)_repeat(auto-fit,minmax(160px,1fr))] gap-10 px-4 pt-[72px] sm:px-8">
         <div className="flex max-w-[340px] flex-col gap-3.5">
           <Wordmark size={28} />
           <p className="text-pretty text-muted-foreground">
@@ -68,7 +68,7 @@ export function LandingFooter() {
       </div>
 
       <div
-        className="mx-auto mt-10 max-w-[1280px] px-4 sm:px-8"
+        className="mx-auto mt-10 max-w-(--page-max) px-4 sm:px-8"
         onMouseMove={onMove}
         onMouseLeave={() => glow.current?.setAttribute('cx', '-400')}
       >
@@ -111,7 +111,7 @@ export function LandingFooter() {
       </div>
 
       <div className="border-t">
-        <div className="mx-auto flex max-w-[1280px] flex-wrap justify-between gap-4 px-4 py-5 text-[13.5px] text-muted-foreground sm:px-8">
+        <div className="mx-auto flex max-w-(--page-max) flex-wrap justify-between gap-4 px-4 py-5 text-[13.5px] text-muted-foreground sm:px-8">
           <span className="whitespace-nowrap">IT314 course project, Group 2</span>
           <span className="whitespace-nowrap">Built with React, shadcn/ui, and Motion</span>
           <span className="font-mono text-[12.5px] whitespace-nowrap tnum">Times in IST · {hhmmss}</span>

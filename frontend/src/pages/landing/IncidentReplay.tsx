@@ -73,7 +73,7 @@ export function IncidentReplay({ replay }: { replay: Replay }) {
   const { page } = replay
 
   return (
-    <div id="replay" className="relative mx-auto mt-16 max-w-[1220px] scroll-mt-24">
+    <div id="replay" className="relative mx-auto mt-16 max-w-[calc(var(--page-max)-4rem)] scroll-mt-24">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute -inset-px rounded-2xl p-px [background:linear-gradient(140deg,color-mix(in_oklch,var(--glow)_55%,transparent),oklch(1_0_0/0.06)_30%,oklch(1_0_0/0.04)_70%,color-mix(in_oklch,var(--glow)_35%,transparent))] [mask:linear-gradient(#000_0_0)_content-box_exclude,linear-gradient(#000_0_0)]"
@@ -224,7 +224,7 @@ export function IncidentReplay({ replay }: { replay: Replay }) {
           <div className="h-0.5 bg-primary shadow-[0_0_10px_var(--primary)]" style={{ width: `${replay.progress * 100}%` }} />
         </div>
       </div>
-      <p className="mx-auto mt-3.5 max-w-[1220px] text-center text-[13px] text-muted-foreground">
+      <p className="mx-auto mt-3.5 max-w-[calc(var(--page-max)-4rem)] text-center text-[13px] text-muted-foreground">
         A real incident shape, three hours compressed into a few seconds. Times in Indian Standard Time.
       </p>
     </div>

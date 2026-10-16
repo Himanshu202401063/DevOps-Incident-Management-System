@@ -52,7 +52,7 @@ export function Hero() {
         </div>
       )}
 
-      <div className="mx-auto flex max-w-[1180px] flex-col items-center gap-[26px] text-center">
+      <div className="mx-auto flex max-w-(--page-max) flex-col items-center gap-[26px] text-center">
         <a
           href="#replay"
           className="inline-flex h-8 items-center gap-2.5 rounded-full border border-white/12 bg-white/6 pr-1.5 pl-3.5 text-[13.5px] whitespace-nowrap text-foreground backdrop-blur-[10px] hover:no-underline"

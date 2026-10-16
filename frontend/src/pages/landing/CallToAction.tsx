@@ -12,7 +12,7 @@ export function CallToAction() {
         aria-hidden="true"
         className="absolute inset-0 -z-10 [background-image:radial-gradient(oklch(1_0_0/0.08)_1px,transparent_1.2px)] [background-size:24px_24px] [mask-image:radial-gradient(ellipse_60%_70%_at_80%_50%,black,transparent_70%)]"
       />
-      <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-14 px-4 py-[120px] sm:px-8">
+      <div className="mx-auto flex max-w-(--page-max) flex-wrap items-center justify-between gap-14 px-4 py-[120px] sm:px-8">
         <div className="flex min-w-0 flex-[1_1_520px] flex-col items-start gap-7">
           <h2 className="max-w-[900px] text-[clamp(56px,7.6vw,116px)] leading-[0.86] font-[750] tracking-[-0.015em]" style={{ fontStretch: '62%' }}>
             When the pager goes off, you'll know what to do next.
