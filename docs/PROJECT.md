@@ -2,58 +2,71 @@
 
 ## What we are building
 
-A web application that helps a team report an incident, assign a responder, track the response, and record the solution. The first goal is a complete working incident workflow that we can demonstrate and test.
+A reliability platform for software teams, working name **Settle**. It has two halves:
+- **Incident response, in the style of incident.io:** declare and assign incidents, track SLAs, run
+  the timeline, and write postmortems.
+- **Monitoring, in the style of Better Stack:** uptime checks, logs and metrics, a service map, and
+  an AI SRE that suggests causes from evidence.
 
-This is a simplified implementation proposal. No stakeholder elicitation has been completed. The earlier requirements document remains separate; the reductions listed below need to be reflected there when the team agrees on scope. This ZIP contains design documents, not implemented software.
+We define the whole goal now and build it sprint by sprint. Every sprint ships something that works
+end to end on the live site.
 
-## Read these documents and the test tracker
+The course brief: "A platform for software teams to register services, report and assign
+incidents, track severity and SLAs, monitor service health, and generate post-incident reports."
+
+Elicitation so far is one survey with few respondents (see `epics-and-conflicts.md` §2).
+Interviews and an online forum post are planned. Requirements change only through
+`REQUIREMENTS.md` and the decision log below.
+
+## Documents
 
 | File | Purpose |
 | --- | --- |
-| [PROJECT.md](PROJECT.md) | Scope, team, and working rules |
-| [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) | Repository layout, high-level design, and low-level design |
-| [REQUIREMENTS.md](REQUIREMENTS.md) | Functional scope, non-functional requirements, and domain rules |
-| [user-stories.md](user-stories.md) | User stories US-01 to US-20 with acceptance criteria |
-| [epics-and-conflicts.md](epics-and-conflicts.md) | Epics, survey findings, and stakeholder conflict resolutions |
-| [sprint-plan.md](sprint-plan.md) | Sprint roadmap and the current sprint's scope |
-| [TESTING_AND_WORKFLOW.md](TESTING_AND_WORKFLOW.md) | Essential tests, traceability rules, workflow, and course evidence |
-| [TRACEABILITY.csv](TRACEABILITY.csv) | Existing FR sub-IDs mapped to specific planned checks and current status |
+| [../README.md](../README.md) | Run, test, and deploy; live links |
+| [../AGENTS.md](../AGENTS.md) | Rules every change follows |
+| [PROJECT.md](PROJECT.md) | Product, scope, stack, team, and the decision log |
+| [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) | Architecture and the detailed incident rules |
+| [REQUIREMENTS.md](REQUIREMENTS.md) | FRs, NFRs, and DRs (the current version; `requirements/Group-2.pdf` is the submitted one) |
+| [user-stories.md](user-stories.md) | User stories with acceptance criteria |
+| [epics-and-conflicts.md](epics-and-conflicts.md) | Epics, survey findings, and conflict resolutions |
+| [sprint-plan.md](sprint-plan.md) | Roadmap and sprint records |
+| [plans/](plans/) | One implementation plan per sprint, plus the AI/ML roadmap |
+| [TESTING_AND_WORKFLOW.md](TESTING_AND_WORKFLOW.md) | How we test, track, and review work |
+| [TRACEABILITY.csv](TRACEABILITY.csv) | Each FR sub-ID, its check, and its status |
 
-## First version
+## Scope
 
-1. Login with Admin, Engineer, and Viewer roles.
-2. Service catalog with an owner, SLA targets, fallback responder, and manually entered on-call time slots.
-3. Manual incident creation and a basic authenticated alert endpoint.
-4. Duplicate alert handling, assignment, in-app notifications, and escalation when nobody acknowledges.
-5. Incident status changes, response and resolution timing, and a recorded timeline.
-6. A dashboard, previous-incident search, resolution notes, and a simple postmortem with action items.
+**Core (must work first):**
+- login and roles;
+- the service catalog with SLA targets and on-call;
+- incidents, created by hand or from alerts, with deduplication, assignment, notifications, and
+  escalation;
+- status changes, SLA clocks, and the timeline;
+- postmortems with follow-ups;
+- the dashboard and history search;
+- service health monitoring.
 
-Use one incident workflow from creation to closure as the main demonstration. A test script can send alerts; we do not need to build a monitoring platform.
+**Extensions (added sprint by sprint):**
+- uptime monitors from several regions, and heartbeats;
+- logs and metrics;
+- a service map and runbooks;
+- deploy tracking;
+- a public status page;
+- an AI SRE (similar incidents, evidence-based suggestions, a postmortem draft) and an MCP server.
 
-## Optional after the first version works
+**Not planned:**
+- automatic remediation;
+- recovery that resolves an incident by itself;
+- SLA pauses and business-hours calendars;
+- automatic on-call rotations;
+- automatic alert grouping across services.
 
-| Priority | Feature |
-| --- | --- |
-| Should | Local AI suggestions based on previous incidents and their fixes |
-| Should | A basic health-check extension, if time permits |
-| Could | One external notification channel or live board updates |
-
-Choose an extension based on remaining time and course expectations. “Should” does not mean it must be finished before demonstrating the core.
-
-Defer automatic on-call rotations, cross-service alert correlation, SLA pauses and business-hours calendars, full DORA reporting, public status pages, and automatic recovery processing. Automatic remediation is outside this version.
-
-## What became simpler
-
-- Four maintained documents and one CSV instead of 24 separate files.
-- One application and one database. RabbitMQ is added only through an outbox, when the first async consumer lands (D24).
-- A few straightforward packages instead of a separate interface layer for every module.
-- Assignment to an individual responder; team ownership stays in the service catalog.
-- Explicit matching of alerts within one service; no inference that similar alerts have the same cause.
-- SLA targets copied when an incident is created and kept fixed for that incident.
-- In-app notifications first; no external delivery queue until an external channel is selected.
-- Basic counts and incident search; no complete analytics suite.
-
-These are proposed scope changes, not claims that the existing requirements or submitted work already say this.
+**Choices that keep it simple:**
+- One backend and one database. RabbitMQ is added only through an outbox (D24).
+- Incidents are assigned to a person. Teams own services.
+- Alerts are matched only within one service, by an explicit key.
+- SLA targets are copied when an incident is created, and never change for that incident.
+- Notifications are in-app first.
 
 ## Stack
 
@@ -65,7 +78,7 @@ These are proposed scope changes, not claims that the existing requirements or s
 | Tests | JUnit, Mockito where useful, Testcontainers for database behavior, Vitest, Cypress |
 | Quality and delivery | PIT for selected business rules; GitHub Actions; Docker Compose |
 | Hosting | Vercel (frontend), Render (backend), Supabase (PostgreSQL), UptimeRobot (D25) |
-| Optional AI | Python, FastAPI, Ollama; LangGraph only when the selected workflow needs it |
+| AI | Python, FastAPI; Ollama by default (D28) |
 
 Use Spring Boot 4.1 with Java 21 for the new project. Pin a stable 4.1 patch in the build file when scaffolding and use compatible dependencies. Follow Boot 4 documentation when older tutorials differ. Recharts is only needed if we add charts.
 
@@ -73,24 +86,26 @@ Version check, 22 September 2026: the [official project page](https://spring.io/
 
 ## Team
 
-| Student ID | Name | Roles |
+| Student ID | Name | Tracks |
 | --- | --- | --- |
-| 202401041 | Christian Shane Prashant | Backend, DevOps, Reviewer |
-| 202401051 | Diwan Shlok Dineshkumar | Backend, AI/ML |
+| 202401041 | Christian Shane Prashant | Frontend, Backend, DevOps, Reviewer |
+| 202401051 | Diwan Shlok Dineshkumar | Frontend, Backend, AI/ML |
 | 202401063 | Gohel Himanshu Shaileshbhai | AI/ML |
-| 202401029 | Bhatiya Dhruva Jiteshbhai | Frontend, Testing |
-| 202401026 | Bhakti Sudhir Patolia | Frontend, AI/ML |
-| 202401044 | Darji Utsav Girish | Testing |
+| 202401029 | Bhatiya Dhruva Jiteshbhai | AI/ML |
+| 202401026 | Bhakti Sudhir Patolia | AI/ML |
+| 202401044 | Darji Utsav Girish | Backend |
 | 202401021 | Bechara Utsav Bhaveshbhai | Backend |
-| 202401014 | Manan Amreliya | Frontend |
-| 202401070 | Jada Manush Alpeshbhai | Testing |
-| 202401033 | Bhungaliya Het Bhaveshbhai | Frontend, Testing |
+| 202401014 | Manan Amreliya | Backend |
+| 202401070 | Jada Manush Alpeshbhai | Backend |
+| 202401033 | Bhungaliya Het Bhaveshbhai | Backend |
 
-Every member should implement and test a meaningful part and make their own commits. Shane reviews and merges pull requests. Use Slack for team communication and GitHub for issues, code, and reviews.
+There is no separate testing track: everyone writes the tests for their own work. Work is assigned
+per task as a GitHub issue. Shane reviews and merges pull requests. Use Slack for team
+communication, and GitHub for issues, code, and reviews.
 
 ## Short decision log
 
-Selected means a design choice adopted in this pack, not completed stakeholder validation. Open means the proposed default still needs a team decision. Owners and review dates below are suggested planning assignments, not agreed deadlines. Dates on selected rows record this document revision. Keep the old D identifiers so earlier discussions remain traceable.
+Selected means a design choice the team adopted, not completed stakeholder validation. Open means the proposed default still needs a team decision. Owners and review dates below are suggested planning assignments, not agreed deadlines. Dates on selected rows record this document revision. Keep the old D identifiers so earlier discussions remain traceable.
 
 | ID | Decision or open question | Status / working default | Suggested owner | Review or recorded date |
 | --- | --- | --- | --- | --- |

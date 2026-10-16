@@ -6,6 +6,28 @@ is recorded. Stories: US-01 Users and roles, US-05 Register a service, US-03 Cre
 
 This plan says what to build and how to check it. Each member writes and commits their own code.
 
+## Scope per story
+
+Only the parts needed for this sprint. The rest of each story's acceptance criteria come in later sprints.
+
+**US-01: Users and roles**
+- Login and logout
+- Three roles: Admin, Engineer, Viewer
+- Admin can create users and assign a role
+- Passwords stored as salted hashes
+- Server rejects actions a role is not allowed to perform
+
+**US-05: Register a service**
+- Add and edit a service: name, owner, criticality
+- Response and resolution targets per severity (SEV1 to SEV4)
+- Default targets from the survey: SEV1 respond within 15 minutes, SEV4 respond within 1 day
+
+**US-03: Create incident**
+- Form with title, description, affected service, severity
+- Missing fields are highlighted; nothing is saved
+- Saved incident gets a unique ID, reporter, creation time, and status OPEN
+- Simple incident list page showing ID, title, service, severity, and status
+
 ## Decisions
 
 Record these in the `PROJECT.md` decision log before coding.
@@ -27,68 +49,46 @@ Record these in the `PROJECT.md` decision log before coding.
 
 | Track | Members |
 | --- | --- |
-| Backend | Shane, Shlok, Utsav B |
-| Frontend | Bhakti, Manan, Dhruva, Het |
-| AI/ML | Himanshu, Shlok, Bhakti |
-| Testing | Utsav D, Manush, Dhruva, Het |
+| Frontend | Shane, Shlok |
+| Backend | Shane, Shlok, Utsav B, Utsav D, Manan, Het, Manush |
+| AI/ML | Himanshu, Shlok, Bhakti, Dhruva |
 | DevOps and Reviewer | Shane |
 
-Whoever builds a feature writes its unit and integration tests in the same PR. The Testing track
-owns the tests that span features.
+The team changed on 16 October: the testing track was removed and frontend moved to two people.
+Whoever builds a feature writes its tests in the same PR. Open items are assigned as GitHub issues.
 
 ## Order of work
 
-1. **Shlok** merges the database migrations first. Everyone builds on these tables.
-2. **Shane** merges login next. Integration tests that need a token wait for it.
-3. **Bhakti** merges the API client early, and **Het** the shared UI components. All pages build on both.
-4. Everything else runs in parallel against the [API contract](#api-contract).
-5. **Shane** adds Compose and the CI end-to-end job once the features are in.
+1. Database migrations, then login. **Done.**
+2. API client and shared UI components. **Done.**
+3. **Now:** the frontend foundation (theme, app shell, routing) and the service catalog and
+   incident APIs, in parallel against the [API contract](#api-contract).
+4. Pages on top of both.
+5. The cross-feature tests, Compose `web` service, and the CI end-to-end job.
 
-## Work per member
+## Work items
 
-**Shane** — Backend, DevOps, and Reviewer
-- Backend foundations: resource-server starter, `Clock` bean, error handler, `@IntegrationTest` test setup, Swagger/OpenAPI
-- JWT login: `/api/auth/login`, `/me`, `/logout`, token-version check. Test: `AuthControllerTest`
-- Compose `web` service and `JWT_SECRET`; CI end-to-end job
-
-**Shlok** — Backend
-- Database migrations V1–V3 and the dev seed
-- Audit writer (`AuditService`)
-- User administration: create user, list users, change role. Test: `UserAdminControllerTest`
-
-**Himanshu** — AI/ML
-- `ai-service/` skeleton: Python + FastAPI, `GET /health`, and `POST /suggest` returning a fixed example in the [AI contract](#ai-service) shape
-- pytest, and a CI job that runs it
-- Ollama installed locally: pick a small model and note how much memory it needs
-
-**Utsav B** — Backend
-- `Severity` enum, then the service catalog: create, update, list, with SLA targets and audit entries. Test: `ServiceControllerTest`
-- Incidents: create, list, detail, with timeline and audit in one transaction
-- Tests: `IncidentTest` (unit), `IncidentControllerTest`, `IncidentCreationRollbackTest`
-
-**Bhakti** — Frontend (AI/ML work starts in Sprint 2)
-- API client and Zod schemas (merge first)
-- Login page, app layout, routing, role-based navigation
-- Users page
-
-**Manan** — Frontend
-- Services list and the create/edit form with the SLA target grid
-
-**Dhruva** — Frontend and Testing
-- Incident list and the create-incident form
-- Testing: the Cypress demo with Het (the frontend side: pages and input ids)
-
-**Utsav D** — Testing
-- `SecurityMatrixTest`: every endpoint × Admin, Engineer, Viewer, and no token
-
-**Het** — Frontend and Testing
-- Shared UI components in `components/ui/`: button, form field with its error message, table, severity and status badges, loading and error states (merge early)
-- Testing: Cypress test that runs the Sprint 1 demo end to end
-
-**Manush** — Testing
-- `DatabaseSchemaTest` (in Shlok's migration PR)
-- Manual run of the demo in Chrome and Firefox
-- Update `TRACEABILITY.csv` with the real test names; draft the sprint record
+| Area | Item | Status |
+| --- | --- | --- |
+| Backend | Foundations: resource server, `Clock`, error handler, `@IntegrationTest`, Swagger | Done (#13) |
+| Backend | Migrations V1–V3, dev seed, `DatabaseSchemaTest` | Done (#18) |
+| Backend | JWT login: `/api/auth/login`, `/me`, `/logout`, token-version check; `AuthControllerTest` | Done (#22) |
+| Backend | Audit writer (`AuditService`) | Open |
+| Backend | User administration: create, list, change role; `UserAdminControllerTest` | Open |
+| Backend | `Severity` enum; service catalog: create, update, list, with SLA targets and audit; `ServiceControllerTest` | Open (#43 needs rework) |
+| Backend | Incidents: create, list, detail, with timeline and audit in one transaction; `IncidentTest`, `IncidentControllerTest`, `IncidentCreationRollbackTest` | Open (#43 needs rework) |
+| Frontend | Shared UI components in `components/ui/` | Done (#19, #39) |
+| Frontend | API client and Zod schemas | Done (#41); fixes in issue #42 |
+| Frontend | Foundation: shadcn, Settle theme, fonts, app shell, routing, role-based navigation | Open |
+| Frontend | Login page | Open |
+| Frontend | Users page | Open |
+| Frontend | Services list and create/edit form with the SLA target grid | Open |
+| Frontend | Incident list and create-incident form | Open |
+| AI/ML | `ai-service` skeleton: `/health`, stub `/suggest`, pytest, CI job; Ollama model note | Done (#21) |
+| Cross-feature tests | `SecurityMatrixTest`: every endpoint × Admin, Engineer, Viewer, and no token | Open |
+| Cross-feature tests | Cypress test of the Sprint 1 demo | Open |
+| Cross-feature tests | Manual run of the demo in Chrome and Firefox; real test names in `TRACEABILITY.csv` | Open |
+| DevOps | Compose `web` service and CI end-to-end job (`JWT_SECRET` in Compose is done, #22) | Open |
 
 ---
 

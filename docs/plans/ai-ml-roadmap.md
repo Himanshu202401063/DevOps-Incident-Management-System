@@ -1,6 +1,6 @@
 # AI/ML Roadmap
 
-**Team:** Himanshu (lead, `ai-service`), Shlok (backend integration), Bhakti (dataset and AI screens).
+**Team:** Himanshu, Shlok, Bhakti, and Dhruva. Who builds each feature is assigned per sprint.
 
 ## Rules from our requirements
 

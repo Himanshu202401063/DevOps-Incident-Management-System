@@ -14,7 +14,7 @@ An incident management web application built for IT314 by Group 2. The specifica
 | `docs/REQUIREMENTS.md` | FR/NFR summary and domain rules |
 | `docs/user-stories.md` | User stories US-01 to US-20 with acceptance criteria |
 | `docs/epics-and-conflicts.md` | Epics, survey findings, and stakeholder conflict resolutions |
-| `docs/sprint-plan.md` | Sprint roadmap and the current sprint's scope |
+| `docs/sprint-plan.md` | Sprint roadmap and sprint records |
 | `docs/TESTING_AND_WORKFLOW.md` | The essential-tests table, traceability rules, and the workflow |
 | `docs/TRACEABILITY.csv` | Every FR sub-ID mapped to its planned check and current status |
 | `docs/plans/` | Sprint implementation plans (who does what) and the AI/ML roadmap |

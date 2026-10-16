@@ -4,6 +4,8 @@
 
 React provides the screens. Spring Boot handles permissions and incident rules. PostgreSQL stores the records. A scheduled task inside Spring Boot checks escalation deadlines. Start with one backend instance.
 
+The diagram below is the first version. HLD v2, in Eraser, adds an outbox with RabbitMQ workers, optional Redis, and a separate alert webhook (D24).
+
 ```mermaid
 flowchart TD
   Browser[React screens] --> Backend[Spring Boot API and scheduled task]
@@ -14,23 +16,13 @@ flowchart TD
 
 The backend is the authority for status changes, timing, and permissions. Browser validation helps the user, but the backend checks every request again. The optional AI service receives selected context from the backend and does not write to the database.
 
-## 2. Repository layout
+## 2. Code layout
 
-| Path | Contents |
-| --- | --- |
-| `backend/` | Spring Boot application and Java tests |
-| `backend/src/main/resources/db/migration/` | Flyway database migrations |
-| `frontend/` | React screens, components, and frontend tests |
-| `frontend/vercel.json` | Vercel routing: `/api` to the Render backend, other paths to the app |
-| `docs/` | These design documents, actual elicitation evidence, and sprint notes |
-| `.github/workflows/` | Build and test workflow |
-| `compose.yaml` | Local database and application setup |
-| `.env.example` | Example settings without real credentials |
-| `ai-service/` | Python AI service (FastAPI, Ollama), from Sprint 1; see `docs/plans/ai-ml-roadmap.md` |
-
-Inside the backend, use packages such as `auth`, `catalog`, `incident`, `alert`, `notification`, and `postmortem`. Keep SLA and escalation classes with the incident feature initially. Split a package only when its size makes that useful.
-
-Each feature has one folder per layer: `controller/`, `dto/`, `entity/`, `repository/`, and `service/` (see `AGENTS.md`, Code layout). Controllers receive requests; services apply rules; repositories read and write records. Do not return JPA entities directly as API responses. We do not need an interface for every service class.
+Folders are listed in the [README](../README.md#layout). Inside the backend, each feature (`auth`,
+`catalog`, `incident`, `alert`, `notification`, `postmortem`) has one folder per layer. See
+`AGENTS.md`, Code layout. Controllers receive requests, services apply rules, and repositories read
+and write records. Do not return JPA entities directly as API responses, and don't add an interface
+for every service class.
 
 ## 3. Main screens and API operations
 
