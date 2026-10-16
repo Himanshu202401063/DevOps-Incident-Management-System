@@ -32,5 +32,5 @@ venv/
 .DS_Store
 Thumbs.db
 
-# Source archive for docs/ - the extracted files are tracked instead
-group-2-project-design-docs*.zip
+# Archives such as design exports stay out of git; their extracted files are tracked instead
+*.zip

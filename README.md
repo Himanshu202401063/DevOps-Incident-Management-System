@@ -8,7 +8,8 @@ teams:
 built sprint by sprint.
 
 The documents in [docs/](docs/) are the specification. Read [docs/PROJECT.md](docs/PROJECT.md)
-first.
+first. Every planned feature is in [docs/FEATURES.md](docs/FEATURES.md), and the AI features in
+the [AI/ML roadmap](docs/plans/ai-ml-roadmap.md).
 
 ## Status
 

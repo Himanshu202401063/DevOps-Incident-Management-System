@@ -2,19 +2,23 @@
 
 ## 1. High-level design: how the parts fit together
 
-React provides the screens. Spring Boot handles permissions and incident rules. PostgreSQL stores the records. A scheduled task inside Spring Boot checks escalation deadlines. Start with one backend instance.
-
-The diagram below is the first version. HLD v2, in Eraser, adds an outbox with RabbitMQ workers, optional Redis, and a separate alert webhook (D24).
-
 ```mermaid
 flowchart TD
-  Browser[React screens] --> Backend[Spring Boot API and scheduled task]
-  Alerts[Alert source or test script] --> Backend
-  Backend --> Database[(PostgreSQL)]
-  Backend -. Optional suggestions .-> AI[FastAPI and local Ollama]
+  Browser[Settle UI: React on Vercel] -->|/api with JWT| Backend[Spring Boot backend on Render]
+  Tools[Monitoring tools and Grafana alert rules] -->|/webhooks/alerts| Backend
+  CI[CI pipelines] -->|/webhooks/deploys| Backend
+  Probes[Probe agents in 2-3 regions] -->|check results| Backend
+  Jobs[Scheduled jobs] -->|heartbeat pings| Backend
+  Backend --> Database[(PostgreSQL on Supabase)]
+  Backend -->|outbox| Queue[RabbitMQ workers: notify, escalate, AI jobs]
+  Backend -->|queries with a server-side token| Grafana[Grafana Cloud: Prometheus and Loki]
+  Backend -. optional .-> AI[ai-service: AI features, AI SRE, MCP server]
+  AI -->|REST API with the caller's token| Backend
+  Shop[Demo shop with fault switches] -->|logs and metrics| Grafana
+  Shop -->|deploy events| CI
 ```
 
-The backend is the authority for status changes, timing, and permissions. Browser validation helps the user, but the backend checks every request again. The optional AI service receives selected context from the backend and does not write to the database.
+The backend is the authority for status changes, timing, and permissions. Browser validation helps the user, but the backend checks every request again. The AI service never writes to the database: its tools call the same REST API as a person, with that person's permissions. The parts arrive sprint by sprint (see [sprint-plan.md](sprint-plan.md)); the first version was one backend instance, one database, and a scheduled escalation task.
 
 ## 2. Code layout
 

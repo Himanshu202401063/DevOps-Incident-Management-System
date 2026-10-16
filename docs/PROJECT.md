@@ -25,12 +25,13 @@ Interviews and an online forum post are planned. Requirements change only throug
 | [../README.md](../README.md) | Run, test, and deploy; live links |
 | [../AGENTS.md](../AGENTS.md) | Rules every change follows |
 | [PROJECT.md](PROJECT.md) | Product, scope, stack, team, and the decision log |
+| [FEATURES.md](FEATURES.md) | Every feature, how it is used, its requirement, and its sprint |
 | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) | Architecture and the detailed incident rules |
 | [REQUIREMENTS.md](REQUIREMENTS.md) | FRs, NFRs, and DRs (the current version; `requirements/Group-2.pdf` is the submitted one) |
 | [user-stories.md](user-stories.md) | User stories with acceptance criteria |
 | [epics-and-conflicts.md](epics-and-conflicts.md) | Epics, survey findings, and conflict resolutions |
 | [sprint-plan.md](sprint-plan.md) | Roadmap and sprint records |
-| [plans/](plans/) | One implementation plan per sprint, plus the AI/ML roadmap |
+| [plans/](plans/) | One implementation plan per sprint, plus the [AI/ML roadmap](plans/ai-ml-roadmap.md) (AI features, AI SRE, MCP server) |
 | [TESTING_AND_WORKFLOW.md](TESTING_AND_WORKFLOW.md) | How we test, track, and review work |
 | [TRACEABILITY.csv](TRACEABILITY.csv) | Each FR sub-ID, its check, and its status |
 
@@ -46,7 +47,7 @@ Interviews and an online forum post are planned. Requirements change only throug
 - the dashboard and history search;
 - service health monitoring.
 
-**Extensions (added sprint by sprint):**
+**Extensions (added sprint by sprint; details in [FEATURES.md](FEATURES.md) and the [AI/ML roadmap](plans/ai-ml-roadmap.md)):**
 - uptime monitors from several regions, and heartbeats;
 - logs and metrics;
 - a service map and runbooks;
@@ -130,5 +131,15 @@ Selected means a design choice the team adopted, not completed stakeholder valid
 | D28 | Where do AI models run? | Selected: self-hosted through Ollama, on a team machine or our own container. Incident data is not sent to external AI providers (NFR-12.1) | Himanshu | Recorded 2026-10-13 |
 | D29 | Is service health monitoring required? | Selected: Must (FR-22). The project brief lists "monitor service health"; recovery never resolves an incident automatically | Shane | Recorded 2026-10-13 |
 | D30 | Which requirements document is current? | Selected: `docs/REQUIREMENTS.md`. `Group-2.pdf` is the submitted version; IDs never change | Shane | Recorded 2026-10-13 |
+| D31 | How do alert senders authenticate? | Open: one bearer token per registered tool, shown once, stored as a SHA-256 hash, revocable. Replaces the source signature in PROJECT_STRUCTURE §6 | Shane | Review in Sprint 2 planning |
+| D32 | Where do alerts arrive? | Open: `POST /webhooks/alerts`, outside `/api` and outside JWT login (HLD v2) | Shane | Review in Sprint 2 planning |
+| D33 | How are notifications stored in Sprint 2? | Open: rows written in the same transaction as the incident change; the outbox and RabbitMQ arrive in Sprint 3 | Shane | Review in Sprint 2 planning |
+| D34 | Where do logs and metrics live? | Open: Grafana Cloud free tier (Prometheus and Loki, 14-day retention); the backend holds the read token and runs every query | Shane | Review in Sprint 2 planning |
+| D35 | Where do probes run? | Open: 2–3 free schedulers in different regions, chosen after a Sprint 2 spike | Shane | Review in Sprint 2 |
+| D36 | When is a monitor down? | Open: only when at least 2 regions agree | Team | Review in Sprint 3 planning |
+| D37 | Which AI models may we use? | Open: local Ollama by default; a hosted model on a free tier, off by default and on demo-shop data only. Needs NFR-12.1 reworded | Himanshu | Review in Sprint 3 planning |
+| D38 | What may the MCP server do? | Open: personal access tokens; read tools first; `add_comment` and `acknowledge` later, as the user and audited; never status changes, declaring, or closing | Shane | Review in Sprint 4 planning |
+| D39 | Which incident roles exist? | Open: Lead (the assignee, replaces Commander), Comms, Ops; Scribe dropped (FEATURES.md, Incident roles) | Team | Review in Sprint 3 planning |
+| D40 | What does the demo shop simulate? | Open: payments, checkout, and search with fault switches; each switch is a labelled scenario for testing and AI evaluation | Team | Review in Sprint 2 planning |
 
 Before implementing an affected rule, its owner should record the team's decision, actual date, and Slack or issue reference. Optional features need not block EPIC 1. If a suggested review date does not fit the sprint, change it explicitly rather than presenting the review as completed.
