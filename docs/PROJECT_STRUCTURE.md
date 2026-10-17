@@ -20,6 +20,10 @@ flowchart TD
 
 The backend is the authority for status changes, timing, and permissions. Browser validation helps the user, but the backend checks every request again. The AI service never writes to the database: its tools call the same REST API as a person, with that person's permissions. The parts arrive sprint by sprint (see [sprint-plan.md](sprint-plan.md)); the first version was one backend instance, one database, and a scheduled escalation task.
 
+The detailed HLD (v3, 17 October) is [diagrams/hld.png](diagrams/hld.png). It shows the same system as the chart above, with the backend split into its parts, plus RabbitMQ and the AI service. Its Eraser source is [diagrams/hld.eraser](diagrams/hld.eraser), so changes to it show up in a diff. When the architecture changes, update the source, then export the image again.
+
+![HLD v3](diagrams/hld.png)
+
 ## 2. Code layout
 
 Folders are listed in the [README](../README.md#layout). Inside the backend, each feature (`auth`,

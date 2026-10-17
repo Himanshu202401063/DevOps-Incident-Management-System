@@ -155,6 +155,7 @@ Targets marked *proposed* are starting points, to be confirmed after the first l
 - **NFR-04.1** Passwords shall be stored as salted hashes, and the server shall check permissions on every protected operation.
 - **NFR-04.2** Passwords, API tokens, and webhook secrets shall never appear in logs.
 - **NFR-04.3** Outside local development, all client-server traffic shall use HTTPS.
+- **NFR-04.4** Login attempts, alert webhooks, and requests made with a personal access token shall be rate-limited per caller. A caller over its limit gets HTTP 429 with a `Retry-After` header (D42). *(proposed)*
 
 ### NFR-05 Reliability
 - **NFR-05.1** A write shall be reported as successful only after it is saved in the database.
