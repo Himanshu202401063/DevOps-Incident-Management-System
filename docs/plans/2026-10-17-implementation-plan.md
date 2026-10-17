@@ -79,8 +79,9 @@ story text will be corrected.
 1. **One issue, one branch, one PR.** Open it as a draft early, so others can see it.
 2. **Contract first.** Before coding an API, post its request and response shapes in your issue.
    The frontend builds against that.
-3. **Tests in the same PR,** at the level in the [testing table](../../AGENTS.md#testing). Paste the
-   test output in the PR.
+3. **Tests in the same PR,** at the level in the [testing table](../../AGENTS.md#testing). Your issue
+   lists the [test case IDs](../testing/TEST_CASES.md) you must automate. Paste the test output in
+   the PR.
 4. **Security rows:** every new endpoint adds its rows to `SecurityMatrixTest` (Admin, Engineer,
    Viewer, no token).
 5. **Migrations:** take the next free `V` number. If someone merges first, rename yours before
@@ -329,7 +330,13 @@ Every suggestion names the past incidents it came from (FR-18.2). The rest of th
 
 ## Testing
 
+The [test plan](../testing/TEST_PLAN.md) has the levels, techniques, and entry and exit criteria; the
+[test cases](../testing/TEST_CASES.md) list every case for Sprints 1 to 3 with its owner; results go
+in the [test report](../testing/TEST_REPORT.md).
+
 - **Everyone tests their own work,** at the level in the [testing table](../../AGENTS.md#testing).
+- **Coverage:** JaCoCo (backend) and Vitest (frontend) run on every build, and each PR gets a
+  coverage comment. PIT runs at the end of each sprint.
 - **`SecurityMatrixTest`:** every endpoint, as Admin, Engineer, Viewer, and no token, asserting the
   exact status. Each API PR adds its rows.
 - **Manual demo:** at the end of each sprint, run the demo in Chrome and Firefox and note the browser

@@ -6,7 +6,11 @@ Other documents cover the rest:
 - the team: [PROJECT.md](PROJECT.md#team);
 - the epics: [epics-and-conflicts.md](epics-and-conflicts.md).
 
-This file covers how the work is tested, tracked, and reviewed.
+This file covers how the work is tested, tracked, and reviewed. The detailed testing documents are
+in [testing/](testing/):
+- [TEST_PLAN.md](testing/TEST_PLAN.md): levels, techniques, environments, entry and exit criteria;
+- [TEST_CASES.md](testing/TEST_CASES.md): every designed test case, its technique, and its test;
+- [TEST_REPORT.md](testing/TEST_REPORT.md): real results per sprint.
 
 ## Essential tests
 

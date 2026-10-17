@@ -17,6 +17,7 @@ An incident management web application built for IT314 by Group 2. The specifica
 | `docs/FEATURES.md` | Every feature, how it is used, its requirement, and its sprint |
 | `docs/sprint-plan.md` | Sprint roadmap and sprint records |
 | `docs/TESTING_AND_WORKFLOW.md` | The essential-tests table, traceability rules, and the workflow |
+| `docs/testing/` | The test plan, the designed test cases with their IDs, and the test report per sprint |
 | `docs/TRACEABILITY.csv` | Every FR sub-ID mapped to its planned check and current status |
 | `docs/plans/` | Sprint implementation plans (who does what) and the AI/ML roadmap |
 | `docs/requirements/Group-2.pdf` | The full submitted requirements document |
