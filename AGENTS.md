@@ -17,6 +17,7 @@ An incident management web application built for IT314 by Group 2. The specifica
 | `docs/FEATURES.md` | Every feature, how it is used, its requirement, and its sprint |
 | `docs/sprint-plan.md` | Sprint roadmap and sprint records |
 | `docs/TESTING_AND_WORKFLOW.md` | The essential-tests table, traceability rules, and the workflow |
+| `docs/testing/` | The test plan, the designed test cases with their IDs, and the test report per sprint |
 | `docs/TRACEABILITY.csv` | Every FR sub-ID mapped to its planned check and current status |
 | `docs/plans/` | Sprint implementation plans (who does what) and the AI/ML roadmap |
 | `docs/requirements/Group-2.pdf` | The full submitted requirements document |
@@ -99,6 +100,12 @@ entities, `@RequiredArgsConstructor` for constructor injection, and `@Slf4j` for
 are Java records, not Lombok classes. Never put `@Data`, `@EqualsAndHashCode`, `@ToString`, or
 `@Builder` on an entity: generated equality and `toString` over every field break Hibernate's
 lazy loading. Change entity state through named methods (`revokeTokens()`), not `@Setter`.
+
+**Frontend** (`frontend/src/`): pages in `pages/`, the app shell in `components/shell/`, Settle pieces
+in `components/app/`, shadcn primitives in `components/ui/`, and animated third-party components in
+`components/effects/`. Style with the design tokens from `index.css` (`bg-sev-1-bg`,
+`text-status-open`), not raw colours. Add components with the shadcn CLI, including React Bits,
+Aceternity, and Magic UI through their registries. See `frontend/README.md`.
 
 REST endpoints live under `/api`. Use separate endpoints for status, assignment, and severity
 changes so their rules stay independent.

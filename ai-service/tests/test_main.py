@@ -39,7 +39,7 @@ def test_health_payload():
 # ---------------------------------------------------------------------------
 
 def test_suggest_returns_200_and_exact_contract_shape():
-    """Ensure response satisfies the AI contract in docs/plans/2026-10-08-sprint-1-implementation.md."""
+    """Ensure response satisfies the AI contract in docs/plans/2026-10-17-implementation-plan.md."""
     payload = {
         "incident": {
             "title": "Payment gateway timeout",

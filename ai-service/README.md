@@ -19,7 +19,7 @@
 
 ## 2. AI Contract & Requirements Mapping
 
-The response from `POST /suggest` conforms strictly to the AI contract in `docs/plans/2026-10-08-sprint-1-implementation.md`:
+The response from `POST /suggest` conforms strictly to the AI contract in `docs/plans/2026-10-17-implementation-plan.md`:
 
 - **AI only suggests, never automates (DR-10.2):** Returns advisory investigation actions only; does not mutate incident status or SLA.
 - **Labelled as AI-generated (FR-18.2):** `aiGenerated: true` explicitly included in root payload.

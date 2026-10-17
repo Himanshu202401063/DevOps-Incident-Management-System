@@ -6,7 +6,7 @@ FastAPI service providing AI-assisted incident recommendations.
 Sprint 1 Scope:
   - GET  /health   -> Service liveness check
   - POST /suggest  -> Returns suggestions conforming strictly to the AI contract shape
-                      in docs/plans/2026-10-08-sprint-1-implementation.md.
+                      in docs/plans/2026-10-17-implementation-plan.md.
 
 Rules enforced by contract:
   - AI only suggests; never mutates incident state or SLA (DR-10.2).
@@ -144,7 +144,7 @@ def health() -> dict[str, str]:
 def suggest(request: SuggestRequest) -> SuggestResponse:
     """
     Returns recommendations based on incident details and past incident context.
-    Conforms to the AI contract in docs/plans/2026-10-08-sprint-1-implementation.md.
+    Conforms to the AI contract in docs/plans/2026-10-17-implementation-plan.md.
     In Sprint 1, this returns suggestions referencing IDs from pastIncidents.
     (Real TF-IDF and Ollama LLM integration start in Sprint 2).
     """
