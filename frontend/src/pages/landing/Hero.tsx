@@ -73,8 +73,8 @@ export function Hero() {
         />
 
         <p className="max-w-[640px] text-[19px] leading-[1.5] text-pretty text-muted-foreground">
-          Settle pages whoever is on call, starts a response clock and a resolution clock the moment an incident opens, and keeps an
-          append-only record until the postmortem is written.
+          Settle watches your services and pages whoever is on call. A response clock and a resolution clock start the moment an
+          incident opens, and an append-only record runs until the postmortem is written.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-2.5">

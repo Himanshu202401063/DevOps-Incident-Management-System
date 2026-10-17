@@ -1,39 +1,13 @@
 import { AlarmClock, CircleCheck, CirclePause, CornerDownRight, Siren, Timer, Zap } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
-import { useState, type ReactNode } from 'react'
-import { MagicCard } from '@/components/effects/magic-card'
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
+import { FeatureCard, FeatureTitle } from './FeatureCard'
 
 const TARGETS = { SEV1: 15, SEV2: 60, SEV3: 240, SEV4: 1440 } as const
 type Sev = keyof typeof TARGETS
 
 const minutes = (m: number) => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ''}` : `${m}m`)
-const heading = 'text-[30px] leading-none font-[750]'
-const condensed = { fontStretch: '75%' } as const
-
-function FeatureCard({
-  children,
-  className,
-  surface = 'bg-card',
-}: {
-  children: ReactNode
-  className?: string
-  surface?: string
-}) {
-  return (
-    <MagicCard
-      gradientSize={380}
-      gradientColor="color-mix(in oklch, var(--primary) 11%, transparent)"
-      gradientOpacity={1}
-      gradientFrom="var(--glow)"
-      gradientTo="var(--primary)"
-      surfaceClassName={surface}
-      className={cn('min-w-0 rounded-2xl', className)}
-    >
-      <div className="flex h-full flex-col gap-4 p-6">{children}</div>
-    </MagicCard>
-  )
-}
 
 function SlaPlayground() {
   const [severity, setSeverity] = useState<Sev>('SEV2')
@@ -148,9 +122,7 @@ export function Features() {
         <div className="flex flex-wrap items-stretch gap-4">
           <FeatureCard surface="bg-deep" className="dark flex-[1.2_1_520px] text-foreground">
             <div className="flex flex-col gap-2">
-              <h3 className="text-[36px] leading-none font-[750]" style={condensed}>
-                SLA tracking
-              </h3>
+              <FeatureTitle large>SLA tracking</FeatureTitle>
               <p className="text-pretty text-muted-foreground">
                 Targets are set per severity on each service and copied when the incident opens. Drag the clock to see how a target is judged.
               </p>
@@ -175,9 +147,7 @@ export function Features() {
           <div className="flex min-w-0 flex-[1_1_420px] flex-col gap-4">
             <FeatureCard className="flex-auto">
               <div className="flex flex-col gap-1.5">
-                <h3 className={heading} style={condensed}>
-                  On-call and escalation
-                </h3>
+                <FeatureTitle>On-call and escalation</FeatureTitle>
                 <p className="text-pretty text-muted-foreground">
                   Incidents go to whoever is on call. If nobody acknowledges in time, more people are notified. The assignee never changes on its own.
                 </p>
@@ -208,9 +178,7 @@ export function Features() {
             <FeatureCard className="flex-auto">
               <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[18px]">
                 <div className="flex flex-col gap-1.5">
-                  <h3 className={heading} style={condensed}>
-                    Alert deduplication
-                  </h3>
+                  <FeatureTitle>Alert deduplication</FeatureTitle>
                   <p className="text-pretty text-muted-foreground">A flapping check becomes one alert with a count, not ten pages at 3 a.m.</p>
                   <button
                     type="button"
@@ -249,9 +217,7 @@ export function Features() {
         <div className="flex flex-wrap items-stretch gap-4">
           <FeatureCard className="flex-[1_1_300px]">
             <div className="flex flex-col gap-1.5">
-              <h3 className={heading} style={condensed}>
-                Timeline and audit trail
-              </h3>
+              <FeatureTitle>Timeline and audit trail</FeatureTitle>
               <p className="text-pretty text-muted-foreground">A mistake gets a correction that links back to it. The original stays.</p>
             </div>
             <div className="flex flex-col gap-2 text-[13px]">
@@ -273,9 +239,7 @@ export function Features() {
 
           <FeatureCard surface="bg-accent" className="flex-[1_1_300px]">
             <div className="flex flex-col gap-1.5">
-              <h3 className={heading} style={condensed}>
-                AI-assisted investigation
-              </h3>
+              <FeatureTitle>AI-assisted investigation</FeatureTitle>
               <p className="text-pretty text-accent-foreground">
                 Settle AI ranks likely causes with the evidence behind each one. It only suggests: a responder accepts or rejects, and nothing runs on its own.
               </p>
@@ -306,9 +270,7 @@ export function Features() {
 
           <FeatureCard className="flex-[1_1_300px]">
             <div className="flex flex-col gap-1.5">
-              <h3 className={heading} style={condensed}>
-                Postmortems
-              </h3>
+              <FeatureTitle>Postmortems</FeatureTitle>
               <p className="text-pretty text-muted-foreground">Settle AI drafts it from the timeline. Follow-ups get an owner and a due date.</p>
             </div>
             <div className="flex flex-col text-[13px]">

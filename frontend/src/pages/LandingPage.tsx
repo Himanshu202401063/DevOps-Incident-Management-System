@@ -4,6 +4,7 @@ import { Hero } from './landing/Hero'
 import { HowItWorks } from './landing/HowItWorks'
 import { LandingFooter } from './landing/LandingFooter'
 import { LandingHeader } from './landing/LandingHeader'
+import { Monitoring } from './landing/Monitoring'
 import { StatusPreview } from './landing/StatusPreview'
 import { Ticker } from './landing/Ticker'
 
@@ -17,6 +18,7 @@ export function LandingPage() {
         <Ticker />
         <HowItWorks />
         <Features />
+        <Monitoring />
         <StatusPreview />
         <CallToAction />
       </main>
