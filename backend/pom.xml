@@ -16,6 +16,8 @@
 	<properties>
 		<java.version>21</java.version>
 		<springdoc.version>3.1.1</springdoc.version>
+		<!-- JaCoCo fills this with its agent; empty keeps @{argLine} valid when JaCoCo is skipped. -->
+		<argLine></argLine>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -146,8 +148,29 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<argLine>-Duser.timezone=UTC</argLine>
+					<argLine>@{argLine} -Duser.timezone=UTC</argLine>
 				</configuration>
+			</plugin>
+			<!-- Line and branch coverage. `verify` writes target/site/jacoco/ (HTML, and jacoco.xml for CI). -->
+			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.15</version>
+				<executions>
+					<execution>
+						<id>prepare-agent</id>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>verify</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<!-- Mutation testing for the transition and SLA rules; run on demand, not bound to a phase. -->
 			<plugin>
@@ -165,6 +188,11 @@
 						<param>HTML</param>
 						<param>XML</param>
 					</outputFormats>
+					<!-- Surefire's argLine now holds JaCoCo's @{argLine} placeholder; give PIT its JVM settings directly. -->
+					<parseSurefireArgLine>false</parseSurefireArgLine>
+					<jvmArgs>
+						<jvmArg>-Duser.timezone=UTC</jvmArg>
+					</jvmArgs>
 				</configuration>
 				<dependencies>
 					<dependency>

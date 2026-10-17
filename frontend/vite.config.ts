@@ -26,5 +26,10 @@ export default defineConfig({
     css: true,
     // Cypress owns the end-to-end scenario; Vitest only covers components.
     exclude: ['node_modules/**', 'cypress/**'],
+    // Count every source file, not only the ones a test happens to import.
+    coverage: {
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/**/*.test.{ts,tsx}', 'src/test/**', 'src/main.tsx', 'src/**/*.d.ts'],
+    },
   },
 })
