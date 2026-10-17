@@ -73,11 +73,11 @@ Interviews and an online forum post are planned. Requirements change only throug
 
 | Area | Choice |
 | --- | --- |
-| Backend | Java 21, Spring Boot 4.1, Spring Data JPA, Spring Security, Validation |
+| Backend | Java 21, Spring Boot 4.1, Spring Data JPA with HikariCP (D43), Spring Security, Validation, Bucket4j rate limits (D42) |
 | Database | PostgreSQL 16, Flyway |
 | Frontend | React, TypeScript, Vite, TanStack Query, Zod, Tailwind and shadcn/ui |
 | Tests | JUnit, Mockito where useful, Testcontainers for database behavior, Vitest, Cypress |
-| Quality and delivery | PIT for selected business rules; GitHub Actions; Docker Compose |
+| Quality and delivery | PIT for selected business rules; GitHub Actions; Docker Compose with nginx as the entry point (D41) |
 | Hosting | Vercel (frontend), Render (backend), Supabase (PostgreSQL), UptimeRobot (D25) |
 | AI | Python, FastAPI; Ollama by default (D28) |
 
@@ -141,5 +141,8 @@ Selected means a design choice the team adopted, not completed stakeholder valid
 | D38 | What may the MCP server do? | Open: personal access tokens; read tools first; `add_comment` and `acknowledge` later, as the user and audited; never status changes, declaring, or closing | Shane | Review in Sprint 4 planning |
 | D39 | Which incident roles exist? | Open: Lead (the assignee, replaces Commander), Comms, Ops; Scribe dropped (FEATURES.md, Incident roles) | Team | Review in Sprint 3 planning |
 | D40 | What does the demo shop simulate? | Open: payments, checkout, and search with fault switches; each switch is a labelled scenario for testing and AI evaluation | Team | Review in Sprint 2 planning |
+| D41 | Where does nginx run? | Selected: as the entry point of the Docker Compose stack (serves the UI, proxies `/api` and `/webhooks`, security headers, gzip, a second rate limit). Production stays on Vercel and Render: on Render's free tier the backend URL is public, so nginx there could be bypassed | Shane | Recorded 2026-10-17 |
+| D42 | How are callers rate-limited? | Selected: in the backend with Bucket4j (NFR-04.4). Login about 5 a minute per IP and username; `/webhooks/alerts` about 50 a second per tool token; MCP about 60 a minute per personal access token. Over the limit returns 429 with `Retry-After`. Buckets live in memory while there is one backend instance | Shane | Recorded 2026-10-17 |
+| D43 | How is the database connection pool set? | Selected: HikariCP, Spring Boot's default, with pool size and timeouts from environment variables. The pool stays below the Supabase session pooler's limit | Shane | Recorded 2026-10-17 |
 
 Before implementing an affected rule, its owner should record the team's decision, actual date, and Slack or issue reference. Optional features need not block EPIC 1. If a suggested review date does not fit the sprint, change it explicitly rather than presenting the review as completed.
