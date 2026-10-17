@@ -1,6 +1,5 @@
 import type { z } from 'zod'
-
-const TOKEN_KEY = 'token'
+import { readToken } from './token'
 
 /** The backend's one error shape; `errors` maps a field name to its message. */
 export class ApiRequestError extends Error {
@@ -9,6 +8,7 @@ export class ApiRequestError extends Error {
 
   constructor(status: number, message: string, errors: Record<string, string> = {}) {
     super(message)
+    this.name = 'ApiRequestError'
     this.status = status
     this.errors = errors
   }
@@ -16,9 +16,17 @@ export class ApiRequestError extends Error {
 
 type Options = { method?: string; body?: unknown }
 
+let onUnauthorized: (() => void) | null = null
+
+/** The auth provider registers this, so a rejected token logs the user out wherever it happens. */
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  onUnauthorized = handler
+}
+
 /**
  * Calls the backend under /api, adds the Bearer token if there is one, and checks the response
- * against `schema` so a contract change fails loudly instead of rendering nonsense.
+ * against `schema` so a contract change fails loudly instead of rendering nonsense. A 204 response
+ * has no body and resolves to undefined.
  */
 export async function apiFetch<T>(path: string, schema: z.ZodType<T>, options: Options = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: 'application/json' }
@@ -31,7 +39,12 @@ export async function apiFetch<T>(path: string, schema: z.ZodType<T>, options: O
     headers,
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
   })
-  const data: unknown = await response.json().catch(() => null)
+
+  // A 401 on a request that carried a token means the token expired or was revoked. A 401
+  // without one is a wrong password on the login form, which the form shows itself.
+  if (response.status === 401 && token) onUnauthorized?.()
+
+  const data: unknown = response.status === 204 ? undefined : await response.json().catch(() => null)
 
   if (!response.ok) {
     const body = (data ?? {}) as { message?: unknown; errors?: unknown }
@@ -40,12 +53,4 @@ export async function apiFetch<T>(path: string, schema: z.ZodType<T>, options: O
     throw new ApiRequestError(response.status, message, errors)
   }
   return schema.parse(data)
-}
-
-function readToken(): string | null {
-  try {
-    return sessionStorage.getItem(TOKEN_KEY)
-  } catch {
-    return null
-  }
 }

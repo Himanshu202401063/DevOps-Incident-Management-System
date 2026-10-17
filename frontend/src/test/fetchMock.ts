@@ -10,6 +10,8 @@ export function mockFetch(routes: Record<string, Handler>) {
     const handler = routes[key]
     if (!handler) return new Response(JSON.stringify({ status: 404, message: `No mock for ${key}` }), { status: 404 })
     const route = typeof handler === 'function' ? handler(init) : handler
+    // A 204 must have no body, or the Response constructor throws.
+    if (route.status === 204) return new Response(null, { status: 204 })
     return new Response(JSON.stringify(route.body), {
       status: route.status ?? 200,
       headers: { 'Content-Type': 'application/json' },

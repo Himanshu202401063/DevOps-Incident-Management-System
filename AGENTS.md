@@ -100,6 +100,12 @@ are Java records, not Lombok classes. Never put `@Data`, `@EqualsAndHashCode`, `
 `@Builder` on an entity: generated equality and `toString` over every field break Hibernate's
 lazy loading. Change entity state through named methods (`revokeTokens()`), not `@Setter`.
 
+**Frontend** (`frontend/src/`): pages in `pages/`, the app shell in `components/shell/`, Settle pieces
+in `components/app/`, shadcn primitives in `components/ui/`, and animated third-party components in
+`components/effects/`. Style with the design tokens from `index.css` (`bg-sev-1-bg`,
+`text-status-open`), not raw colours. Add components with the shadcn CLI, including React Bits,
+Aceternity, and Magic UI through their registries. See `frontend/README.md`.
+
 REST endpoints live under `/api`. Use separate endpoints for status, assignment, and severity
 changes so their rules stay independent.
 
