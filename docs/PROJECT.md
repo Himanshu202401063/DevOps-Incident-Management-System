@@ -31,8 +31,9 @@ Interviews and an online forum post are planned. Requirements change only throug
 | [user-stories.md](user-stories.md) | User stories with acceptance criteria |
 | [epics-and-conflicts.md](epics-and-conflicts.md) | Epics, survey findings, and conflict resolutions |
 | [sprint-plan.md](sprint-plan.md) | Roadmap and sprint records |
-| [plans/](plans/) | One implementation plan per sprint, plus the [AI/ML roadmap](plans/ai-ml-roadmap.md) (AI features, AI SRE, MCP server) |
+| [plans/](plans/) | The implementation plan (who builds what), plus the [AI/ML roadmap](plans/ai-ml-roadmap.md) (AI features, AI SRE, MCP server) |
 | [TESTING_AND_WORKFLOW.md](TESTING_AND_WORKFLOW.md) | How we test, track, and review work |
+| [testing/](testing/) | The [test plan](testing/TEST_PLAN.md), [test cases](testing/TEST_CASES.md), and [test report](testing/TEST_REPORT.md) |
 | [TRACEABILITY.csv](TRACEABILITY.csv) | Each FR sub-ID, its check, and its status |
 
 ## Scope

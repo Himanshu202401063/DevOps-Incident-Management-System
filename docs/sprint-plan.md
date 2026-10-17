@@ -4,8 +4,8 @@
 
 ## 1. Sprint roadmap
 
-Each sprint is about 2 weeks and delivers working features end to end: API, UI, tests, and
-docs. The features are described in [FEATURES.md](FEATURES.md), and the AI work in the
+Each sprint delivers working features end to end: API, UI, tests, and docs. Sprints 1 to 3 run in
+the week of 19 to 25 October (decided 17 October); later sprints are about 2 weeks. The features are described in [FEATURES.md](FEATURES.md), and the AI work in the
 [AI/ML roadmap](plans/ai-ml-roadmap.md). If a sprint runs late, the items in the last column go
 first.
 
@@ -23,8 +23,8 @@ requirements. Write them before the sprint that builds them.
 
 ## 2. Current sprint
 
-**Sprint 1.** Its goal, decisions, API contract, and work items are in the
-[Sprint 1 plan](plans/2026-10-08-sprint-1-implementation.md). Each sprint gets its own plan in
+**Sprints 1 to 3.** Their goals, owners, order of work, API contract, and work items are in the
+[implementation plan](plans/2026-10-17-implementation-plan.md). Later sprints get their own plan in
 [plans/](plans/).
 
 ## 3. Sprint records
@@ -44,7 +44,7 @@ Write one record at the end of each sprint, using real PR links and test results
 
 | Field | Content |
 |---|---|
-| Goal and dates | A logged-in user can register a service and create an incident. Started 8 October 2026; end date to be set |
+| Goal and dates | A logged-in user can register a service and create an incident. Started 8 October 2026; ends Monday 19 October |
 | Stories | US-01 Users and roles, US-05 Register a service, US-03 Create incident |
 | Completed work | Backend foundations #13, own schema #14, migrations and dev seed #18, JWT login #22, AI service skeleton #21, shared UI components #19 and #39, API client #41, backend layout and Lombok #44 |
 | Verification | CI on `main`: backend 94 tests (JUnit and Testcontainers), frontend 19 Vitest tests, AI service 11 pytest tests, all passing |
