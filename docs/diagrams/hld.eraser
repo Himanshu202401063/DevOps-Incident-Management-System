@@ -1,0 +1,70 @@
+title Settle - High Level Design v3
+direction right
+
+People and tools [icon: users] {
+  WebApp [icon: react, label: "Web app on Vercel (Admin, Engineer, Viewer; public status page)"]
+  MCPClient [icon: bot, label: "AI assistant (MCP client)"]
+}
+
+Signal sources [icon: radar] {
+  Probes [icon: radar, label: "Probes in 2-3 regions and heartbeat pings"]
+  AlertTools [icon: bell-ring, label: "Grafana alert rules and other tools"]
+  CI [icon: github-actions, label: "CI deploy events"]
+  DemoShop [icon: store, label: "Demo shop with fault switches"]
+}
+
+Backend on Render [icon: server] {
+  Monitoring [icon: activity, label: "Monitors and heartbeats (down when 2 regions agree)"]
+  Intake [icon: inbox, label: "Alert intake (dedup and grouping)"]
+  Incident [icon: siren, label: "Incidents (lifecycle, SLA clocks, roles, timeline)", color: orange]
+  Catalog [icon: calendar-clock, label: "Services, on-call, and deploys"]
+  Telemetry [icon: line-chart, label: "Logs and metrics queries"]
+  Relay [icon: repeat, label: "Outbox relay and escalation worker"]
+}
+
+Data [icon: database] {
+  Postgres [icon: postgresql, label: "PostgreSQL on Supabase (incidents, timeline, audit, outbox)"]
+}
+
+Messaging [icon: rabbitmq] {
+  RabbitMQ [icon: rabbitmq, label: "RabbitMQ (with a dead-letter queue)"]
+  Workers [icon: cpu, label: "Workers: notifications, live updates, AI jobs"]
+}
+
+AI service [icon: python] {
+  AIFeatures [icon: sparkles, label: "AI features (suggest only)"]
+  MCPServer [icon: plug, label: "MCP server"]
+}
+
+Grafana Cloud [icon: grafana] {
+  Prometheus [icon: prometheus, label: "Prometheus (metrics)"]
+  Loki [icon: file-text, label: "Loki (logs)"]
+}
+
+Models [icon: brain] {
+  Ollama [icon: brain, label: "Ollama (default)"]
+  Hosted [icon: cloud, label: "Hosted LLM (optional)"]
+}
+
+WebApp > Backend on Render: /api (JWT)
+MCPClient > MCPServer: personal access token
+MCPServer > Backend on Render: REST API as the user
+Probes > Monitoring: results and pings
+AlertTools > Intake: /webhooks/alerts (tool token)
+CI > Catalog: /webhooks/deploys
+DemoShop > Grafana Cloud: logs and metrics
+
+Monitoring > Intake: raise alert
+Intake > Incident: create or link
+Incident > Catalog: who is on call
+Telemetry > Grafana Cloud: PromQL and LogQL
+
+Backend on Render > Postgres
+Relay --> RabbitMQ: publish events
+RabbitMQ --> Workers
+Workers --> AIFeatures: AI jobs
+Incident --> AIFeatures: find similar (optional)
+
+AIFeatures > MCPServer: evidence tools
+AIFeatures > Ollama
+AIFeatures --> Hosted: optional
