@@ -100,8 +100,8 @@ One row per endpoint; each cell is the expected status. `SecurityMatrixTest` run
 | TC-FR-02.2b | Equivalence | List incidents | Newest first | `IncidentControllerTest` | Planned (#50) |
 | TC-FR-04.1a | Equivalence | Severity `SEV1` to `SEV4`; then `SEV5` and blank | Valid ones accepted; others 400 | `IncidentControllerTest` | Planned (#50) |
 | TC-FR-16.3a | Equivalence | Create an incident, then change the service's targets | The incident keeps the targets copied at creation | `IncidentTest` | Planned (#50) |
-| TC-FR-02.1d | Equivalence | The incident form submitted with missing fields | Field errors shown; nothing sent | Vitest | Planned (Shlok, #55) |
-| TC-FR-01.2e | Equivalence | A Viewer opens the app | No "Declare incident" button; `/incidents/new` refused | Vitest | Planned (Shlok, #55) |
+| TC-FR-02.1d | Equivalence | The incident form submitted with missing fields | Field errors shown; nothing sent | `IncidentsPage.test.tsx` | Automated |
+| TC-FR-01.2e | Equivalence | A Viewer opens the app | No "Declare incident" button; `/incidents/new` refused | `IncidentsPage.test.tsx` | Automated |
 
 ### SLA clocks (FR-16): boundary values with a controlled clock
 
