@@ -54,8 +54,21 @@ services:
     build:
       context: ./ai-service
     container_name: incident-ai
+    environment:
+      OLLAMA_URL: ${OLLAMA_URL:-http://ollama:11434}
+      OLLAMA_EMBED_MODEL: ${OLLAMA_EMBED_MODEL:-nomic-embed-text}
     ports:
       - "127.0.0.1:${AI_PORT:-8000}:8000"
 
+  ollama:
+    profiles: ["ollama"]
+    image: ollama/ollama:latest
+    container_name: incident-ollama
+    ports:
+      - "127.0.0.1:${OLLAMA_PORT:-11434}:11434"
+    volumes:
+      - incident-ollama-data:/root/.ollama
+
 volumes:
   incident-db-data:
+  incident-ollama-data:
