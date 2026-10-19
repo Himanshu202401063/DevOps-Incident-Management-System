@@ -1,17 +1,10 @@
 package com.group2.incident.audit.entity;
 
+/** Only what Sprint 1 records. A later feature adds its own actions with the code that records them. */
 public enum AuditAction {
     USER_CREATED,
-    USER_UPDATED,
-    USER_DISABLED,
     USER_ROLE_CHANGED,
     SERVICE_CREATED,
     SERVICE_UPDATED,
-    ESCALATION_POLICY_CREATED,
-    ESCALATION_POLICY_UPDATED,
-    ESCALATION_POLICY_APPLIED,
-    INCIDENT_CREATED,
-    INCIDENT_UPDATED,
-    INCIDENT_RESOLVED,
-    INCIDENT_CLOSED
+    INCIDENT_CREATED
 }
