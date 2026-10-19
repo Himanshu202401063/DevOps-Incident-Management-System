@@ -87,7 +87,7 @@ One row per endpoint; each cell is the expected status. `SecurityMatrixTest` run
 | TC-FR-14.1f | Equivalence | Criticality `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`; then an unknown value | Valid values accepted; unknown gives 400 | `ServiceControllerTest` | Planned (Utsav B, #49) |
 | TC-FR-14.1g | Equivalence (invalid) | A second service with the same name | 409 | `DatabaseSchemaTest.duplicateServiceNameIsRejected`; `ServiceControllerTest` | Automated (database); Planned (API) |
 | TC-FR-14.1h | Negative | Update a service's targets | One audit entry showing before and after | `ServiceControllerTest` | Planned (Utsav B, #49) |
-| TC-FR-14.1i | Equivalence | The services form with a resolution target below its response target | A field error; nothing sent | Vitest | Planned (Shlok, #54) |
+| TC-FR-14.1i | Equivalence | The services form with a resolution target below its response target | A field error; nothing sent | `ServicesPage.test.tsx` | Automated |
 
 ### Incidents (FR-02, FR-04.1)
 
