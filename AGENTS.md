@@ -190,6 +190,12 @@ is the only force-push allowed: on your own feature branch, never on `main` or s
 branch. If `git pull --ff-only` fails because local `main` has its own commits, or a rebase
 conflicts, stop and ask the user. Never reset, or resolve a conflict by discarding someone's work.
 
+**Label every pull request** with the labels of its issue, including at least one area:
+`backend`, `frontend`, `ai-ml`, `devops`, or `documentation`. Add `bug` for a fix, `test` for work
+that is mostly tests, and `dependencies` for version bumps. Put `Closes #<issue>` in the
+description so the issue closes on merge. With the GitHub CLI, add labels when opening the pull
+request (`gh pr create --label backend …`) or afterwards (`gh pr edit <number> --add-label backend`).
+
 ## Before you finish a change
 
 1. The acceptance criteria of the story are met.
