@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 import { AREAS, ADMIN_PAGES } from '@/app/navigation'
 import { RequireAuth } from '@/auth/RequireAuth'
@@ -6,6 +7,10 @@ import { HomePage } from '@/pages/HomePage'
 import { LoginPage } from '@/pages/LoginPage'
 import { NotBuiltYetPage } from '@/pages/NotBuiltYetPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { UsersPage } from '@/pages/UsersPage'
+
+// Admin screens that exist so far; the rest of ADMIN_PAGES show when they are planned.
+const ADMIN_SCREENS: Record<string, ReactNode> = { '/users': <UsersPage /> }
 
 // Screens not built yet show when they are planned; each is replaced by its real page as it lands.
 const placeholderPaths = AREAS.flatMap((area) => area.pages.map((page) => page.path)).filter((path) => path !== '/home')
@@ -25,7 +30,7 @@ export const router = createBrowserRouter([
           ...placeholderPaths.map((path) => ({ path: `${path}/*`, element: <NotBuiltYetPage /> })),
           {
             element: <RequireAuth roles={['ADMIN']} />,
-            children: ADMIN_PAGES.map((page) => ({ path: page.path, element: <NotBuiltYetPage /> })),
+            children: ADMIN_PAGES.map((page) => ({ path: page.path, element: ADMIN_SCREENS[page.path] ?? <NotBuiltYetPage /> })),
           },
           { path: '*', element: <NotFoundPage /> },
         ],
