@@ -1,5 +1,5 @@
 # Local development stack. `docker compose up -d db` is enough for day-to-day work;
-# the `app` profile is for checking the packaged backend against the same database.
+# the `app` profile runs the packaged backend and the built UI behind nginx on http://localhost:8081.
 services:
   db:
     image: postgres:16
@@ -37,6 +37,17 @@ services:
       TZ: UTC
     ports:
       - "${APP_PORT:-8080}:8080"
+
+  # The way in when the stack runs in Docker (D41): nginx serves the UI and proxies the backend.
+  web:
+    profiles: ["app"]
+    build:
+      context: ./frontend
+    container_name: incident-web
+    depends_on:
+      - app
+    ports:
+      - "${WEB_PORT:-8081}:80"
 
   ai-service:
     profiles: ["ai"]
