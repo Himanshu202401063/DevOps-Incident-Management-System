@@ -54,7 +54,7 @@ One row per endpoint; each cell is the expected status. `SecurityMatrixTest` run
 
 | ID | Technique | Input or condition | Expected | Test | Status |
 | --- | --- | --- | --- | --- | --- |
-| TC-FR-01.2a | Decision table | Every cell above | The status in the cell | `SecurityMatrixTest` | Planned (Het, #48) |
+| TC-FR-01.2a | Decision table | Every cell above | The status in the cell | `SecurityMatrixTest.endpointSecurityMatrix` | In review (#48) |
 | TC-FR-01.2b | Decision table | Admin-only paths as Engineer and Viewer | 403 | `AuthControllerTest.adminOnlyPathsRefuseOtherRoles` | Automated |
 | TC-FR-01.2c | Decision table | Viewer creates an incident | 403 | `AuthControllerTest.viewerCannotCreateIncidents` | Automated |
 | TC-FR-01.2d | Equivalence | Health check and API docs with no token | 200 | `AuthControllerTest.healthAndApiDocsNeedNoToken` | Automated |
@@ -63,14 +63,14 @@ One row per endpoint; each cell is the expected status. `SecurityMatrixTest` run
 
 | ID | Technique | Input or condition | Expected | Test | Status |
 | --- | --- | --- | --- | --- | --- |
-| TC-US-01a | Boundary value | Password of 7 characters | 400 naming `password` | `UserAdminControllerTest` | Planned (Het, #48) |
-| TC-US-01b | Boundary value | Password of 8 characters | 201 | `UserAdminControllerTest` | Planned (Het, #48) |
-| TC-US-01c | Boundary value | Password of 72 characters | 201 | `UserAdminControllerTest` | Planned (Het, #48) |
-| TC-US-01d | Boundary value | Password of 73 characters | 400 | `UserAdminControllerTest` | Planned (Het, #48) |
-| TC-US-01e | Equivalence (invalid) | Username that differs from an existing one only in case | 409 | `UserAdminControllerTest` | Planned (Het, #48) |
-| TC-US-01f | Equivalence | Role `ADMIN`, `ENGINEER`, `VIEWER`; then an unknown role | 201 for each valid role; 400 for the unknown one | `UserAdminControllerTest` | Planned (Het, #48) |
-| TC-US-01g | State transition | Change a user's role, then reuse their old token | 401; their new login carries the new role | `UserAdminControllerTest` | Planned (Het, #48) |
-| TC-US-01h | Negative | Creating a user and changing a role | Each writes one audit entry; the password never appears in it or in logs | `UserAdminControllerTest` | Planned (Het, #48) |
+| TC-US-01a | Boundary value | Password of 7 characters | 400 naming `password` | `UserAdminControllerTest.passwordBelowEightCharactersReturns400` | In review (#48) |
+| TC-US-01b | Boundary value | Password of 8 characters | 201 | `UserAdminControllerTest.passwordAtEightCharactersReturns201` | In review (#48) |
+| TC-US-01c | Boundary value | Password of 72 characters | 201 | `UserAdminControllerTest.passwordAtSeventyTwoCharactersReturns201` | In review (#48) |
+| TC-US-01d | Boundary value | Password of 73 characters | 400 | `UserAdminControllerTest.passwordAboveSeventyTwoCharactersReturns400` | In review (#48) |
+| TC-US-01e | Equivalence (invalid) | Username that differs from an existing one only in case | 409 | `UserAdminControllerTest.duplicateUsernameReturns409RegardlessOfCase` | In review (#48) |
+| TC-US-01f | Equivalence | Role `ADMIN`, `ENGINEER`, `VIEWER`; then an unknown role | 201 for each valid role; 400 for the unknown one | `UserAdminControllerTest.validRolesReturn201UnknownRoleReturns400` | In review (#48) |
+| TC-US-01g | State transition | Change a user's role, then reuse their old token | 401; their new login carries the new role | `UserAdminControllerTest.roleChangeIncrementsTokenVersionAndInvalidatesOldToken` | In review (#48) |
+| TC-US-01h | Negative | Creating a user and changing a role | Each writes one audit entry; the password never appears in it or in logs | `UserAdminControllerTest.createUserAndRoleChangeWriteAuditEntries` | In review (#48) |
 | TC-US-01i | Boundary value | The Users page form with a 7-character password | "Use at least 8 characters"; nothing sent | `UsersPage.test.tsx` | Automated |
 | TC-US-01j | Equivalence (invalid) | The server answers 409 to a new username | The message shows under the username field | `UsersPage.test.tsx` | Automated |
 | TC-US-01k | State transition | Pick a new role, cancel, then pick it again and confirm | Nothing is sent until confirmed; then one `PUT` with the new role | `UsersPage.test.tsx` | Automated |
