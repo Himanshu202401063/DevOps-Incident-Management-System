@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -47,6 +48,7 @@ public class SecurityMatrixTest {
 	private Clock clock;
 
 	@Autowired
+	@Qualifier("requestMappingHandlerMapping")
 	private RequestMappingHandlerMapping handlerMapping;
 
 	private String adminToken;

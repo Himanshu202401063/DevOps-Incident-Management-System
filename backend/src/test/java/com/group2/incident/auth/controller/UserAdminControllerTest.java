@@ -241,8 +241,8 @@ class UserAdminControllerTest {
 				.andExpect(jsonPath("$[0].username").isNotEmpty())
 				.andExpect(jsonPath("$[0].displayName").isNotEmpty())
 				.andExpect(jsonPath("$[0].role").isNotEmpty())
-				.andExpect(jsonPath("$[?(@.passwordHash != null)]").isEmpty())
-				.andExpect(jsonPath("$[?(@.tokenVersion != null)]").isEmpty());
+				.andExpect(jsonPath("$[*].passwordHash").doesNotExist())
+				.andExpect(jsonPath("$[*].tokenVersion").doesNotExist());
 	}
 
 	@Test
