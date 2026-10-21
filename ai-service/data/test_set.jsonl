@@ -6,7 +6,7 @@
 {"id": "TEST-006", "query": "An update to a caching tier caused elevated request failures for customers using the multi-layer cache feature.", "similar_incident_ids": ["PM-008", "PM-003", "PM-009"]}
 {"id": "TEST-007", "query": "Multiple edge platform products failed together after an internal configuration change impacted shared service infrastructure.", "similar_incident_ids": ["PM-009", "PM-003", "PM-008"]}
 {"id": "TEST-008", "query": "A DNS infrastructure change caused widespread lookup failures and degraded access to hosted domains.", "similar_incident_ids": ["PM-010", "PM-013", "PM-016"]}
-{"id": "TEST-009", "query": "An edge security feature change produced errors and blocked legitimate application requests across several customer sites.", "similar_incident_ids": ["PM-011", "PM-080", "PM-091"]}
+{"id": "TEST-009", "query": "An edge security feature change produced errors and blocked legitimate application requests across several customer sites.", "similar_incident_ids": ["PM-011", "PM-004", "PM-012"]}
 {"id": "TEST-010", "query": "A test security rule was accidentally deployed to the global firewall configuration, causing widespread customer traffic failures.", "similar_incident_ids": ["PM-012", "PM-002", "PM-005"]}
 {"id": "TEST-011", "query": "An automated cleanup job queried an infrastructure API incorrectly and deleted active network addressing resources.", "similar_incident_ids": ["PM-013", "PM-010", "PM-016"]}
 {"id": "TEST-012", "query": "An operator performing abuse mitigation mistakenly disabled a production object storage gateway, preventing customer access.", "similar_incident_ids": ["PM-014", "PM-004", "PM-043"]}
