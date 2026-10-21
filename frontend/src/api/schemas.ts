@@ -28,3 +28,15 @@ export const loginResponseSchema = z.object({
 })
 
 export const noContentSchema = z.undefined()
+
+export const incidentStatusSchema = z.enum([
+  'OPEN',
+  'ACKNOWLEDGED',
+  'INVESTIGATING',
+  'IDENTIFIED',
+  'MONITORING',
+  'RESOLVED',
+  'CLOSED',
+])
+
+export type IncidentStatus = z.infer<typeof incidentStatusSchema>
