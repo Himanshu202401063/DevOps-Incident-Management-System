@@ -10,7 +10,11 @@ import { LoginPage } from '@/pages/LoginPage'
 import { NewIncidentPage } from '@/pages/NewIncidentPage'
 import { NotBuiltYetPage } from '@/pages/NotBuiltYetPage'
 import { NotFoundPage } from '@/pages/NotFoundPage'
+import { ServicesPage } from '@/pages/ServicesPage'
 import { UsersPage } from '@/pages/UsersPage'
+
+// Dock screens that exist so far, open to every role; each page hides what a role can't use.
+const SCREENS: Record<string, ReactNode> = { '/services': <ServicesPage /> }
 
 // Admin screens that exist so far; the rest of ADMIN_PAGES show when they are planned.
 const ADMIN_SCREENS: Record<string, ReactNode> = { '/users': <UsersPage /> }
@@ -24,7 +28,9 @@ const INCIDENT_SCREENS: Record<string, ReactNode> = {
 const RESPONDER_SCREENS: Record<string, ReactNode> = { '/incidents/new': <NewIncidentPage /> }
 
 // Screens not built yet show when they are planned; each is replaced by its real page as it lands.
-const placeholderPaths = AREAS.flatMap((area) => area.pages.map((page) => page.path)).filter((path) => path !== '/home')
+const placeholderPaths = AREAS.flatMap((area) => area.pages.map((page) => page.path)).filter(
+  (path) => path !== '/home' && !(path in SCREENS),
+)
 
 // Exported so tests can run the real route table, guards included.
 export const routes: RouteObject[] = [
@@ -39,6 +45,7 @@ export const routes: RouteObject[] = [
         element: <AppShell />,
         children: [
           { path: '/home', element: <HomePage /> },
+          ...Object.entries(SCREENS).map(([path, element]) => ({ path, element })),
           ...placeholderPaths.map((path) => ({ path: `${path}/*`, element: <NotBuiltYetPage /> })),
           ...Object.entries(INCIDENT_SCREENS).map(([path, element]) => ({ path, element })),
           {
