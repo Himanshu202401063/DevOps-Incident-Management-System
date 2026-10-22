@@ -123,17 +123,17 @@ Ollama is configured under the optional `ollama` profile so developers who do no
 docker compose --profile ollama up -d ollama
 
 # Pull the model inside the running Ollama container
-docker compose exec incident-ollama ollama pull nomic-embed-text
+docker compose exec ollama ollama pull nomic-embed-text
 ```
 
 ### Calling `POST /embed`
 
-Generate an embedding vector for arbitrary text:
+Generate an embedding vector for arbitrary text. `kind` is optional and defaults to `"document"` (`"search_document: "` prefix for stored incidents) or `"query"` (`"search_query: "` prefix for search queries):
 
 ```bash
 curl -X POST http://localhost:8000/embed \
   -H "Content-Type: application/json" \
-  -d '{"text": "Payment gateway timeout on checkout"}'
+  -d '{"text": "Payment gateway timeout on checkout", "kind": "document"}'
 ```
 
 **Response (200 OK):**
@@ -145,19 +145,22 @@ curl -X POST http://localhost:8000/embed \
 ```
 
 **Error Handling:**
-- `422 Unprocessable Entity`: Missing body or empty/invalid `text`.
+- `422 Unprocessable Entity`: Missing body, invalid `kind`, or empty/invalid `text`.
 - `503 Service Unavailable`: Ollama daemon is unreachable or timed out.
 - `502 Bad Gateway`: Ollama returned an error or unexpected response shape.
 
-### Health Check with Ollama Probe (`GET /health`)
+### Health & Readiness Checks (`GET /health`, `GET /ready`)
 
-The health endpoint reports service liveness and Ollama reachability without failing if Ollama is down:
-
-```bash
-curl http://localhost:8000/health
+- **`GET /health`**: Instant liveness check that does not wait on Ollama. Always returns HTTP 200.
+```json
+{
+  "status": "ok",
+  "service": "ai-service",
+  "version": "0.2.0"
+}
 ```
 
-**Response (200 OK):**
+- **`GET /ready`**: Readiness check that probes Ollama reachability and verifies whether the configured model is pulled.
 ```json
 {
   "status": "ok",
@@ -165,6 +168,7 @@ curl http://localhost:8000/health
   "version": "0.2.0",
   "ollama": {
     "reachable": true,
+    "model_pulled": true,
     "url": "http://localhost:11434",
     "model": "nomic-embed-text"
   }
@@ -188,7 +192,8 @@ python -m pytest -v
 ```
 
 ### Endpoints
-- `GET http://localhost:8000/health` — Liveness & Ollama reachability check
+- `GET http://localhost:8000/health` — Instant liveness check
+- `GET http://localhost:8000/ready` — Readiness & Ollama model check
 - `POST http://localhost:8000/suggest` — AI suggestion endpoint (Sprint 1)
 - `POST http://localhost:8000/embed` — Text embedding endpoint (Sprint 2)
 - `GET http://localhost:8000/docs` — Interactive Swagger OpenAPI documentation

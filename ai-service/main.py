@@ -4,13 +4,13 @@ ai-service - Sprint 1 (health, suggest) + Sprint 2 (Ollama embeddings)
 FastAPI service providing AI-assisted incident recommendations.
 
 Sprint 1 Scope:
-  - GET  /health   -> Service liveness check
+  - GET  /health   -> Instant service liveness check
   - POST /suggest  -> Returns suggestions conforming strictly to the AI contract shape
                       in docs/plans/2026-10-17-implementation-plan.md.
 
 Sprint 2 additions (Issue #62):
   - POST /embed    -> Returns a numeric embedding vector via Ollama.
-  - GET  /health   -> Now also reports whether Ollama is reachable.
+  - GET  /ready    -> Reports whether Ollama is reachable and the model is pulled.
 
 Rules enforced by contract:
   - AI only suggests; never mutates incident state or SLA (DR-10.2).
@@ -27,15 +27,18 @@ Environment variables (Sprint 2):
 
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 import logging
+import math
 import os
-from typing import List
+from typing import List, Literal
 
 import httpx
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Response, status
 from pydantic import BaseModel, Field
 
 logger = logging.getLogger("ai-service")
+
 
 def get_ollama_url() -> str:
     return os.getenv("OLLAMA_URL", "http://localhost:11434").rstrip("/")
@@ -46,24 +49,44 @@ def get_ollama_model() -> str:
 
 
 def get_ollama_timeout() -> float:
+    raw = os.getenv("OLLAMA_TIMEOUT", "10")
     try:
-        return float(os.getenv("OLLAMA_TIMEOUT", "10"))
-    except ValueError:
+        value = float(raw)
+        if not math.isfinite(value) or value <= 0:
+            return 10.0
+        return value
+    except (ValueError, TypeError):
         return 10.0
 
 
-# Module-level defaults for backward compatibility / inspection
-OLLAMA_URL: str = get_ollama_url()
-OLLAMA_EMBED_MODEL: str = get_ollama_model()
-OLLAMA_TIMEOUT: float = get_ollama_timeout()
-
 _VERSION = "0.2.0"
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    app.state.http_client = httpx.AsyncClient()
+    try:
+        yield
+    finally:
+        client = getattr(app.state, "http_client", None)
+        if client is not None and not client.is_closed:
+            await client.aclose()
+
 
 app = FastAPI(
     title="Incident AI Service",
     description="Local AI suggestions for DevOps Incident Management System",
     version=_VERSION,
+    lifespan=lifespan,
 )
+
+
+async def _get_client() -> httpx.AsyncClient:
+    client = getattr(app.state, "http_client", None)
+    if client is None or client.is_closed:
+        client = httpx.AsyncClient()
+        app.state.http_client = client
+    return client
 
 
 # ---------------------------------------------------------------------------
@@ -176,6 +199,11 @@ class EmbedRequest(BaseModel):
         description="Text to embed",
         examples=["Payment gateway timeout on checkout"],
     )
+    kind: Literal["document", "query"] = Field(
+        default="document",
+        description="Embedding kind: 'document' for stored incidents, 'query' for search queries",
+        examples=["document", "query"],
+    )
 
 
 class EmbedResponse(BaseModel):
@@ -194,33 +222,28 @@ class EmbedResponse(BaseModel):
 # Internal helpers — Ollama HTTP interaction
 # ---------------------------------------------------------------------------
 
-def _send_ollama_request(
-    method: str,
-    path: str,
-    json: dict | None = None,
-    timeout: float = 10.0,
-) -> httpx.Response:
+async def _check_ollama_readiness(url: str, target_model: str, timeout: float = 3.0) -> tuple[bool, bool]:
     """
-    Execute an HTTP request to Ollama.
-    Isolated into a single function to make testing and error handling clean.
-    """
-    url = f"{get_ollama_url()}{path}"
-    with httpx.Client(timeout=timeout) as client:
-        if method.upper() == "GET":
-            return client.get(url)
-        return client.post(url, json=json)
-
-
-def _ollama_reachable() -> bool:
-    """
-    Probe Ollama with a short timeout. Returns True only when Ollama responds
-    with HTTP 200. Never raises; always returns a bool (NFR-12).
+    Check if Ollama is reachable and whether target_model is pulled.
+    Returns (reachable: bool, model_pulled: bool). Never raises.
     """
     try:
-        resp = _send_ollama_request("GET", "/api/tags", timeout=3.0)
-        return resp.status_code == 200
+        client = await _get_client()
+        resp = await client.get(f"{url}/api/tags", timeout=timeout)
+        if resp.status_code != 200:
+            return False, False
+        data = resp.json()
+        models = data.get("models", [])
+        pulled = any(
+            m.get("name") == target_model
+            or m.get("name", "").startswith(f"{target_model}:")
+            or m.get("model") == target_model
+            or m.get("model", "").startswith(f"{target_model}:")
+            for m in models
+        )
+        return True, pulled
     except Exception:
-        return False
+        return False, False
 
 
 # ---------------------------------------------------------------------------
@@ -229,27 +252,32 @@ def _ollama_reachable() -> bool:
 
 @app.get("/health")
 def health() -> dict:
-    """
-    Liveness check.
-
-    Sprint 1 contract (preserved):
-      { "status": "ok", "service": "ai-service", "version": "…" }
-
-    Sprint 2 additions:
-      "ollama": { "reachable": true|false, "url": "…", "model": "…" }
-
-    The service always returns HTTP 200 — it remains useful even when Ollama
-    is unavailable (FR-18.4, NFR-12).
-    """
-    url = get_ollama_url()
-    model = get_ollama_model()
-    ollama_reachable = _ollama_reachable()
+    """Instant liveness check (Sprint 1 contract). Does not block on Ollama."""
     return {
         "status": "ok",
         "service": "ai-service",
         "version": _VERSION,
+    }
+
+
+@app.get("/ready")
+async def ready(response: Response) -> dict:
+    """Readiness check that verifies Ollama is reachable and model is pulled."""
+    url = get_ollama_url()
+    model = get_ollama_model()
+    reachable, model_pulled = await _check_ollama_readiness(url, model)
+    is_ready = reachable and model_pulled
+
+    if not is_ready:
+        response.status_code = status.HTTP_503_SERVICE_UNAVAILABLE
+
+    return {
+        "status": "ok" if is_ready else "not_ready",
+        "service": "ai-service",
+        "version": _VERSION,
         "ollama": {
-            "reachable": ollama_reachable,
+            "reachable": reachable,
+            "model_pulled": model_pulled,
             "url": url,
             "model": model,
         },
@@ -292,42 +320,45 @@ def suggest(request: SuggestRequest) -> SuggestResponse:
 
 
 @app.post("/embed", response_model=EmbedResponse)
-def embed(request: EmbedRequest) -> EmbedResponse:
+async def embed(request: EmbedRequest) -> EmbedResponse:
     """
     Returns a numeric embedding vector for the supplied text via Ollama.
 
     Uses the model configured in OLLAMA_EMBED_MODEL (default: nomic-embed-text).
-    The same text and model always produce the same vector when the underlying
-    model and configuration are unchanged.
+    Prepends prefix according to kind:
+      - 'document': "search_document: <text>" (for stored incidents)
+      - 'query':    "search_query: <text>"    (for search queries)
 
     Error responses:
-      - 422  if the request body is missing or invalid (FastAPI validation).
+      - 422  if the request body is missing or invalid.
       - 503  if Ollama is unreachable or times out.
-      - 502  if Ollama returns an unexpected response shape.
+      - 502  if Ollama returns an error or unexpected response shape.
     """
     url = get_ollama_url()
     model = get_ollama_model()
     timeout = get_ollama_timeout()
 
+    prefix = "search_query: " if request.kind == "query" else "search_document: "
     payload = {
         "model": model,
-        "input": request.text,
+        "input": f"{prefix}{request.text}",
     }
 
+    client = await _get_client()
     try:
-        resp = _send_ollama_request("POST", "/api/embed", json=payload, timeout=timeout)
+        resp = await client.post(f"{url}/api/embed", json=payload, timeout=timeout)
     except httpx.TimeoutException:
         logger.warning("Ollama request timed out (url=%s, model=%s)", url, model)
         raise HTTPException(
             status_code=503,
             detail="Ollama request timed out. Make sure Ollama is running and the model is pulled.",
         )
-    except httpx.RequestError as exc:
+    except (httpx.HTTPError, httpx.InvalidURL) as exc:
         logger.warning("Ollama connection error: %s", exc)
         raise HTTPException(
             status_code=503,
             detail=f"Cannot reach Ollama at {url}. Make sure Ollama is running.",
-        )
+        ) from exc
 
     if resp.status_code != 200:
         logger.error("Ollama returned HTTP %s: %s", resp.status_code, resp.text[:200])
@@ -338,17 +369,23 @@ def embed(request: EmbedRequest) -> EmbedResponse:
 
     try:
         body = resp.json()
-        # Newer Ollama returns: { "embeddings": [[...]] }
-        # Older Ollama returns: { "embedding": [...] }
-        if "embeddings" in body and isinstance(body["embeddings"], list) and len(body["embeddings"]) > 0:
-            vector: List[float] = body["embeddings"][0]
-        elif "embedding" in body and isinstance(body["embedding"], list):
-            vector = body["embedding"]
-        else:
+        embeddings = body.get("embeddings")
+        if not isinstance(embeddings, list) or len(embeddings) == 0:
             raise ValueError("Missing or malformed embeddings field in Ollama response")
 
-        if not vector or not all(isinstance(x, (int, float)) for x in vector):
-            raise ValueError("Embedding vector contains non-numeric values or is empty")
+        vector = embeddings[0]
+
+        if (
+            not isinstance(vector, list)
+            or not vector
+            or not all(
+                type(x) in (int, float) and not isinstance(x, bool) and math.isfinite(x)
+                for x in vector
+            )
+        ):
+            raise ValueError(
+                "Embedding vector contains non-numeric values, booleans, NaN, or is empty"
+            )
     except (ValueError, KeyError, TypeError) as exc:
         logger.error("Unexpected Ollama response shape: %s", exc)
         raise HTTPException(
@@ -357,4 +394,3 @@ def embed(request: EmbedRequest) -> EmbedResponse:
         )
 
     return EmbedResponse(embedding=vector, model=model)
-
