@@ -87,7 +87,7 @@ One row per endpoint; each cell is the expected status. `SecurityMatrixTest` run
 | TC-FR-14.1f | Equivalence | Criticality `LOW`, `MEDIUM`, `HIGH`, `CRITICAL`; then an unknown value | Valid values accepted; unknown gives 400 | `ServiceControllerTest` | Planned (Utsav B, #49) |
 | TC-FR-14.1g | Equivalence (invalid) | A second service with the same name | 409 | `DatabaseSchemaTest.duplicateServiceNameIsRejected`; `ServiceControllerTest` | Automated (database); Planned (API) |
 | TC-FR-14.1h | Negative | Update a service's targets | One audit entry showing before and after | `ServiceControllerTest` | Planned (Utsav B, #49) |
-| TC-FR-14.1i | Equivalence | The services form with a resolution target below its response target | A field error; nothing sent | Vitest | Planned (Shlok, #54) |
+| TC-FR-14.1i | Equivalence | The services form with a resolution target below its response target | A field error; nothing sent | `ServicesPage.test.tsx` | Automated |
 
 ### Incidents (FR-02, FR-04.1)
 
@@ -100,8 +100,8 @@ One row per endpoint; each cell is the expected status. `SecurityMatrixTest` run
 | TC-FR-02.2b | Equivalence | List incidents | Newest first | `IncidentControllerTest` | Planned (#50) |
 | TC-FR-04.1a | Equivalence | Severity `SEV1` to `SEV4`; then `SEV5` and blank | Valid ones accepted; others 400 | `IncidentControllerTest` | Planned (#50) |
 | TC-FR-16.3a | Equivalence | Create an incident, then change the service's targets | The incident keeps the targets copied at creation | `IncidentTest` | Planned (#50) |
-| TC-FR-02.1d | Equivalence | The incident form submitted with missing fields | Field errors shown; nothing sent | Vitest | Planned (Shlok, #55) |
-| TC-FR-01.2e | Equivalence | A Viewer opens the app | No "Declare incident" button; `/incidents/new` refused | Vitest | Planned (Shlok, #55) |
+| TC-FR-02.1d | Equivalence | The incident form submitted with missing fields | Field errors shown; nothing sent | `IncidentsPage.test.tsx` | Automated |
+| TC-FR-01.2e | Equivalence | A Viewer opens the app | No "Declare incident" button; `/incidents/new` refused | `IncidentsPage.test.tsx` | Automated |
 
 ### SLA clocks (FR-16): boundary values with a controlled clock
 
